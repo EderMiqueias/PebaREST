@@ -47,9 +47,8 @@ class BaseModel(dict):
         return self.__str__()
 
     def __setattr__(self, key, value):
-        # transformed_value = BaseModel.transform_attr(value, self.__annotations__[key])
-        # super().__setattr__(key, transformed_value)
-        super().__setattr__(key, value)
+        transformed_value = BaseModel.transform_attr(value, self.__annotations__[key])
+        super().__setattr__(key, transformed_value)
 
     def __setitem__(self, key, value):
         self.__setattr__(key, value)
