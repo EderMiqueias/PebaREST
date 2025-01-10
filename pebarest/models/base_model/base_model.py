@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 from typing import Union, get_args, get_origin
 
-from pebarest.models.exceptions import AttrTypeError, AttrListTypeError, AttrMissingError
+from pebarest.exceptions import AttrTypeError, AttrListTypeError, AttrMissingError
 
 NoneType = type(None)
 
