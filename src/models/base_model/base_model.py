@@ -134,8 +134,6 @@ class BaseModel(dict):
 
     @staticmethod
     def __transform_attr(attr, attr_class_type):
-        if attr_class_type == datetime:
-            return str(attr)
         if issubclass(attr_class_type, BaseModel) and isinstance(attr, dict):
             return attr_class_type.from_json(attr)
         return attr_class_type(attr)
