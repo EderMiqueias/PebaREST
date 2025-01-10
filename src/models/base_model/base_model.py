@@ -178,13 +178,18 @@ class BaseModel(dict):
     def to_json(self) -> dict:
         json_object = {}
         for attr_name in self.__attrs:
-            json_object[attr_name] = getattr(self, attr_name)
+            attr = getattr(self, attr_name)
+            if type(attr) is datetime:
+                json_object[attr_name] = str(attr)
+            else:
+                json_object[attr_name] = attr
         return json_object
 
 
 class A(BaseModel):
     a: str
+    b: datetime
 
 
-a = A('a')
-print(a['a'])
+a = A('a', datetime.now())
+print(a)
