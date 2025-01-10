@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 from typing import Union, get_args, get_origin
 
-from src.models.exceptions import AttrTypeError, AttrListTypeError, AttrMissingError
+from pebarest.models.exceptions import AttrTypeError, AttrListTypeError, AttrMissingError
 
 NoneType = type(None)
 
@@ -184,13 +184,3 @@ class BaseModel(dict):
             else:
                 json_object[attr_name] = attr
         return json_object
-
-
-class A(BaseModel):
-    a: str
-    b: datetime
-
-
-a = A('a', datetime.now())
-A.from_json(a)
-print(a)
