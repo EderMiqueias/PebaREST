@@ -1,6 +1,8 @@
 import json
 from datetime import datetime
-from typing import Union, get_args, get_origin, List
+from typing import Union, get_args, get_origin
+
+from src.models.exceptions import AttrTypeError, AttrListTypeError, AttrMissingError
 
 NoneType = type(None)
 
@@ -19,13 +21,13 @@ class BaseModel(dict):
                 attr_class_type = self.__check_attr_type(attr_name, args[index])
                 setattr(self, attr_name, BaseModel.transform_attr(args[index], attr_class_type))
             except AttributeError:
-                raise KeyError(attr_name)
+                raise AttrMissingError(attr_name)
             except IndexError:
                 if self.__check_attr_is_optional(self, attr_name):
                     if not hasattr(self, attr_name):
                         setattr(self, attr_name, None)
                     return
-                raise KeyError(attr_name)
+                raise AttrMissingError(attr_name)
 
         super().__init__(self.to_json())
 
@@ -67,17 +69,18 @@ class BaseModel(dict):
         return False
 
     @staticmethod
-    def __get_attrs_instance(cls) -> dict:
-        def check_item(item) -> bool:
-            try:
-                if get_origin(item[1]) is Union:
-                    return cls.__type_is_subclass_of_class_tuple(BaseModel, item[1])
-                return issubclass(item[1], BaseModel)
-            except TypeError:
-                return False
+    def __check_item(item) -> bool:
+        try:
+            if get_origin(item[1]) is Union:
+                return BaseModel.__type_is_subclass_of_class_tuple(BaseModel, item[1])
+            return issubclass(item[1], BaseModel)
+        except AttrTypeError:
+            return False
 
+    @staticmethod
+    def __get_attrs_instance(cls) -> dict:
         return dict(
-            filter(check_item, cls.__annotations__.items())
+            filter(BaseModel.__check_item, cls.__annotations__.items())
         )
 
     @staticmethod
@@ -98,9 +101,9 @@ class BaseModel(dict):
         for ct_arg in class_type_args:
             try:
                 return ct_arg.from_json(payload[attr_name])
-            except TypeError:
+            except AttrTypeError:
                 return payload[attr_name]
-            except (KeyError, AttributeError):
+            except (AttrMissingError, AttributeError):
                 pass
         if hasattr(cls, attr_name):
             return getattr(cls, attr_name)
@@ -128,7 +131,7 @@ class BaseModel(dict):
             )
         if issubclass(type_payload, BaseModel):
             return payload
-        raise TypeError("O Tipo do payload deve pertencer a <class 'dict'>")
+        raise AttrTypeError(cls.__name__, dict)
 
     @staticmethod
     def __transform_attr(attr, attr_class_type):
@@ -168,11 +171,11 @@ class BaseModel(dict):
                 if self.__type_is_subclass_of_class_tuple(attr_type, class_type_args):
                     return attr_class_type
                 if not isinstance(attr_value, class_type_args):
-                    raise TypeError(f'o campo {attr_name} precisa pertencer aos tipos {class_type_args}')
+                    raise AttrListTypeError(attr_name, class_type_args)
             elif class_type_origin in (list, tuple):
                 return attr_class_type
             else:
-                raise TypeError(f'o campo {attr_name} precisa ser do tipo {attr_class_type}')
+                raise AttrTypeError(attr_name, attr_class_type)
         return attr_class_type
 
     def to_json(self) -> dict:
@@ -192,4 +195,5 @@ class A(BaseModel):
 
 
 a = A('a', datetime.now())
+A.from_json(a)
 print(a)
