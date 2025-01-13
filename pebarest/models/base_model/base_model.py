@@ -4,6 +4,7 @@ from typing import Union, get_args, get_origin
 
 from pebarest.exceptions import AttrTypeError, AttrListTypeError, AttrMissingError
 
+
 NoneType = type(None)
 
 
