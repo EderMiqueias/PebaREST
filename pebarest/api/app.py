@@ -1,3 +1,5 @@
+from pebarest.models.request import Request
+from pebarest.models.response import Response
 from pebarest.exceptions import RouteAlreadyExistsError
 
 
@@ -43,17 +45,4 @@ class App:
             return [response.body.encode('utf-8')]
         else:
             start_response('404 Not Found', [('Content-Type', 'text/plain')])
-            return [b'Resoure not found']
-
-
-class Request:
-    def __init__(self, environ):
-        self.method = environ['REQUEST_METHOD']
-        self.path = environ['PATH_INFO']
-
-
-class Response:
-    def __init__(self):
-        self.status = '200 OK'
-        self.headers = {'Content-Type': 'application/json'}
-        self.body = '{"message": "Bem-vindo!"}'
+            return b'Resource not found'
