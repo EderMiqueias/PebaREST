@@ -1,7 +1,7 @@
 from pebarest.models.request import Request
 from pebarest.models.response import Response
 from pebarest.exceptions import MethodNotAllowedError
-from pebarest.models.http import HttpMethods
+from pebarest.models.http import HttpMethods, http_methods_list
 
 
 class Resource:
@@ -49,5 +49,19 @@ class Resource:
     def options(self, request: Request, *args, **kwargs) -> Response:
         raise MethodNotAllowedError(HttpMethods.options)
 
+    @classmethod
+    def from_anonymous_object(cls, anonymous_object: object, default_headers: dict=None):
+        if default_headers is None:
+            default_headers = {}
+        resource_cls = cls(default_headers)
+
+        for method_name in http_methods_list:
+            if hasattr(anonymous_object, method_name):
+                setattr(resource_cls, method_name, getattr(anonymous_object, method_name))
+        return resource_cls
+
+
+def get_http_methods_attrs(cls):
+    return list(filter(lambda attr: attr in http_methods_list, dir(cls)))
 
 __all__ = ['Resource']
