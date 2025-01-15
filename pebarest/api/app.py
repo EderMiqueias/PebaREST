@@ -46,7 +46,7 @@ class App:
         path = environ['PATH_INFO']
         if path in self._routes_manager:
             resource = self._routes_manager.routes[path]
-            request = Request(environ['HEADERS'], environ['PARAMS'], environ['BODY'])
+            request = Request(environ)
 
             response = resource(environ['REQUEST_METHOD'], request)
 
