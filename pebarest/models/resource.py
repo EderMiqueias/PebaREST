@@ -64,4 +64,14 @@ class Resource:
 def get_http_methods_attrs(cls):
     return list(filter(lambda attr: attr in http_methods_list, dir(cls)))
 
-__all__ = ['Resource']
+
+# Decorator to transform a simple class into a Resource
+def resource(cls_custom_resource: type) -> type:
+    cls_resource = Resource
+    for method in get_http_methods_attrs(cls_custom_resource):
+        setattr(cls_resource, method, getattr(cls_custom_resource, method))
+    return cls_resource
+
+
+
+__all__ = ['Resource', 'resource']
