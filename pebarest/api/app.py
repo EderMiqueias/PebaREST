@@ -1,5 +1,6 @@
-from pebarest.models.request import Request
-from pebarest.models.response import Response
+from typing import Union
+
+from pebarest.models import Resource, Request
 from pebarest.exceptions import RouteAlreadyExistsError
 
 
@@ -18,17 +19,27 @@ class RoutesManager:
     def routes(self):
         return self.__routes
 
-    def add_route(self, path: str, resource: object):
+    def add_route(self, path: str, resource: Resource):
         if path in self.__routes:
             raise RouteAlreadyExistsError(path)
         self.__routes[path] = resource
 
 
 class App:
-    def __init__(self, manager=RoutesManager):
-        self._routes_manager: RoutesManager = manager()
+    def __init__(self, default_headers: dict=None, manager=RoutesManager):
+        if default_headers is None:
+            default_headers = {}
 
-    def add_route(self, path: str, resource: object):
+        self._routes_manager: RoutesManager = manager()
+        self.headers = default_headers
+
+    def add_route(self, path: str, resource: Union[object, Resource]):
+        if issubclass(type(resource), Resource):
+            if not resource.headers:
+                resource.headers = self.headers
+            self._routes_manager.add_route(path, resource)
+        # TODO: MATOU A FUNCAO
+        resource = Resource.from_anonymous_object(resource, self.headers)
         self._routes_manager.add_route(path, resource)
 
     def __call__(self, environ, start_response):
