@@ -6,3 +6,6 @@ class HttpMethods:
     delete = 'DELETE'
     head = 'HEAD'
     options = 'OPTIONS'
+
+
+__all__ = ['HttpMethods']

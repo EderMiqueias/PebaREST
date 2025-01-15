@@ -1,2 +1,2 @@
-from .models.base_model import BaseModel
+from .models import BaseModel
 from .api import App

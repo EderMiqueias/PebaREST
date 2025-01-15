@@ -185,3 +185,6 @@ class BaseModel(dict):
             else:
                 json_object[attr_name] = attr
         return json_object
+
+
+__all__ = ['BaseModel', 'NoneType']
