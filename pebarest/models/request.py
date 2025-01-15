@@ -6,9 +6,9 @@ class Request:
     params: dict
     body: Optional[dict]
 
-    def __init__(self, environ):
-        self.headers = environ['HEADERS']
-        self.params = environ['PARAMS']
-        self.body = environ['BODY']
+    def __init__(self, headers: dict, params: dict, body: dict=None):
+        self.headers = headers
+        self.params = params
+        self.body = body
 
 __all__ = ['Request']
