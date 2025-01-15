@@ -35,11 +35,9 @@ class App:
         path = environ['PATH_INFO']
         if path in self._routes_manager:
             resource = self._routes_manager.routes[path]
-            request = Request(environ)
-            response = Response()
+            request = Request(environ['HEADERS'], environ['PARAMS'], environ['BODY'])
 
-            if environ['REQUEST_METHOD'] == 'GET':
-                resource.get(request)
+            response = resource(environ['REQUEST_METHOD'], request)
 
             start_response(response.status, response.headers.items())
             return [response.body.encode('utf-8')]
