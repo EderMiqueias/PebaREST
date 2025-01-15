@@ -1,3 +1,5 @@
+http_methods_list = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
+
 class HttpMethods:
     get = 'GET'
     post = 'POST'
@@ -8,4 +10,4 @@ class HttpMethods:
     options = 'OPTIONS'
 
 
-__all__ = ['HttpMethods']
+__all__ = ['HttpMethods', 'http_methods_list']
