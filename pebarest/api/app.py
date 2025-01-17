@@ -34,13 +34,13 @@ class App:
         self.headers = default_headers
 
     def add_route(self, path: str, resource: Union[object, Resource]):
-        if issubclass(type(resource), Resource):
+        if isinstance(resource, Resource):
             if not resource.headers:
                 resource.headers = self.headers
             self._routes_manager.add_route(path, resource)
-        # TODO: MATOU A FUNCAO
-        resource = Resource.from_anonymous_object(resource, self.headers)
-        self._routes_manager.add_route(path, resource)
+        else:
+            resource = Resource.from_anonymous_object(resource, self.headers)
+            self._routes_manager.add_route(path, resource)
 
     def __call__(self, environ, start_response):
         path = environ['PATH_INFO']
