@@ -48,7 +48,10 @@ class App:
             resource = self._routes_manager.routes[path]
             request = Request(environ)
 
-            response = resource(environ['REQUEST_METHOD'], request)
+            try:
+                response = resource(environ['REQUEST_METHOD'], request)
+            except MethodNotAllowedError as e:
+                response = Response(405, self.headers, self.error_format(e.title, method=e.method))
             start_response(response.get_status(), list(response.headers.items()))
             return response.get_body_bytes()
         else:
