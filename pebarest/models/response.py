@@ -20,4 +20,13 @@ class Response:
         return f"{self.status} "
 
 
-__all__ = ['Response']
+class DefaultErrorResponse(dict):
+    def __init__(self, error_message: str, **kwargs):
+        super().__init__()
+        self.__setitem__('title', error_message)
+
+        for key, value in kwargs.items():
+            self.__setitem__(key, value)
+
+
+__all__ = ['Response', 'DefaultErrorResponse']
