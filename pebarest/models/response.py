@@ -16,5 +16,8 @@ class Response:
     def get_body_bytes(self) -> List[bytes]:
         return [dumps(self.body)]
 
+    def get_status(self):
+        return f"{self.status} OK"
+
 
 __all__ = ['Response']
