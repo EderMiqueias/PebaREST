@@ -49,9 +49,8 @@ class App:
             request = Request(environ)
 
             response = resource(environ['REQUEST_METHOD'], request)
-
-            start_response(response.status, response.headers.items())
-            return [response.body.encode('utf-8')]
+            start_response(response.get_status(), list(response.headers.items()))
+            return response.get_body_bytes()
         else:
             start_response('404 Not Found', [('Content-Type', 'text/plain')])
-            return b'Resource not found'
+            return [b'Resource not found']
