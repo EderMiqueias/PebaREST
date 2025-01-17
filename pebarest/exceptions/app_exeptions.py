@@ -10,3 +10,4 @@ class MethodNotAllowedError(Exception):
 
     def __init__(self, method: str):
         self.method = method
+        self.title = f'405 Method Not Allowed'
