@@ -1,7 +1,7 @@
 from typing import Union
 
-from pebarest.models import Resource, Request
-from pebarest.exceptions import RouteAlreadyExistsError
+from pebarest.models import Resource, Request, Response, DefaultErrorResponse
+from pebarest.exceptions import RouteAlreadyExistsError, MethodNotAllowedError
 
 
 class RoutesManager:
@@ -26,12 +26,21 @@ class RoutesManager:
 
 
 class App:
-    def __init__(self, default_headers: dict=None, manager=RoutesManager):
+    def __init__(
+            self,
+            default_headers: dict=None,
+            manager=RoutesManager,
+            error_format=DefaultErrorResponse
+    ):
         if default_headers is None:
             default_headers = {}
 
         self._routes_manager: RoutesManager = manager()
         self.headers = default_headers
+
+        if not issubclass(error_format, dict):
+            raise TypeError('The error format class must be a subclass of dict.')
+        self.error_format=error_format
 
     def add_route(self, path: str, resource: Union[object, Resource]):
         if isinstance(resource, Resource):
