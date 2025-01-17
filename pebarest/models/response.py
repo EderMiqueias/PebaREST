@@ -17,7 +17,7 @@ class Response:
         return [dumps(self.body)]
 
     def get_status(self):
-        return f"{self.status} OK"
+        return f"{self.status} "
 
 
 __all__ = ['Response']
