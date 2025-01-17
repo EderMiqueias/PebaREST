@@ -1,4 +1,6 @@
-from typing import Optional, Union
+from typing import Optional, Union, List
+
+from pebarest.utils import dumps
 
 
 class Response:
@@ -10,6 +12,9 @@ class Response:
         self.status = status
         self.headers = headers
         self.body = body
+
+    def get_body_bytes(self) -> List[bytes]:
+        return [dumps(self.body)]
 
 
 __all__ = ['Response']
