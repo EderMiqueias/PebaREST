@@ -21,12 +21,18 @@ class Resource:
         self.headers = default_headers or {}
 
     def __call__(self, method, request: Request, *args, **kwargs) -> Response:
-        response, status_code = self._map_methods[method](request, *args, **kwargs)
-        if type(response) == Response:
-            return response
-        if status_code:
-            return Response(status_code, self.headers, response)
-        return Response(200, self.headers, None)
+        body_response, status_code = None, 200
+        call_return = self._map_methods[method](request, *args, **kwargs)
+        if type(call_return) == Response:
+            return call_return
+        if type(call_return) == dict:
+            body_response = call_return
+        elif type(call_return) == tuple:
+            if len(call_return) > 0:
+                body_response = call_return[0]
+                if len(call_return) > 1:
+                    status_code = call_return[1]
+        return Response(status_code, self.headers, body_response)
 
     def get(self, request: Request, *args, **kwargs) -> Response:
         raise MethodNotAllowedError(HttpMethods.get)
