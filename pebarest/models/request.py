@@ -8,11 +8,12 @@ class Request:
     body: Optional[dict]
 
     def __init__(self, environ):
-        self.headers = self._parse_headers(environ)
-        self.params = self._parse_params(environ)
+        self.headers = self.parse_headers(environ)
+        self.params = self.parse_params(environ)
         self.body = {}
 
-    def _parse_headers(self, environ):
+    @staticmethod
+    def parse_headers(environ):
         """Converts the request headers into a dictionary."""
         headers = {}
         for key, value in environ.items():
@@ -21,7 +22,8 @@ class Request:
                 headers[header_name] = value
         return headers
 
-    def _parse_params(self, environ):
+    @staticmethod
+    def parse_params(environ):
         """Convert a query string to a dictionary."""
         query_string = environ.get('QUERY_STRING', '')
         return {key: value[0] if len(value) == 1 else value
