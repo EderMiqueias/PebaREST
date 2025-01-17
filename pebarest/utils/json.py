@@ -1,0 +1,51 @@
+def to_double_quoted_string(value) -> str:
+    """
+    Converts a string value to a double-quoted representation.
+
+    :param value: String value to be converted.
+    :return: String with double quotes.
+    """
+    return '"{}"'.format(value.replace("\\", "\\\\").replace("\"", "\\\""))
+
+
+def to_serializable(value) -> str:
+    """
+    Converts a value to a serializable string.
+
+    :param value: Value to be converted.
+    :return: Serializable string.
+    """
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    elif isinstance(value, str):
+        return to_double_quoted_string(value)
+    elif isinstance(value, (int, float)):
+        return repr(value)
+    elif isinstance(value, dict):
+        return "{" + ", ".join(f"{to_double_quoted_string(key)}: {to_serializable(val)}" for key, val in value.items()) + "}"
+    elif isinstance(value, list):
+        return "[" + ", ".join(to_serializable(item) for item in value) + "]"
+    elif value is None:
+        return "null"
+    else:
+        raise TypeError(f"Type {type(value)} is not supported.")
+
+
+def dumps(data) -> bytes:
+    """
+    Converts a dictionary or list to a byte format.
+
+    :param data: Dictionary or list to be converted.
+    :return: Data in byte format.
+    """
+    if isinstance(data, dict):
+        serialized = "{" + ", ".join(f"{to_double_quoted_string(key)}: {to_serializable(value)}" for key, value in data.items()) + "}"
+    elif isinstance(data, list):
+        serialized = "[" + ", ".join(to_serializable(item) for item in data) + "]"
+    elif isinstance(data, str):
+        serialized = data
+    elif data is None:
+        serialized = 'null'
+    else:
+        raise ValueError("The input data is invalid.")
+    return serialized.encode("utf-8")
