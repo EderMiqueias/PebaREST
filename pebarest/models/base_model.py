@@ -19,6 +19,7 @@ class BaseModel(dict):
         self.__attrs = self.__get_attrs(self)
         for index, attr_name in enumerate(self.__attrs):
             try:
+
                 attr_class_type = self.__check_attr_type(attr_name, args[index])
                 setattr(self, attr_name, BaseModel.transform_attr(args[index], attr_class_type))
             except AttributeError:
@@ -36,7 +37,6 @@ class BaseModel(dict):
         for hierarchical_class in cls.__mro__:
             if issubclass(hierarchical_class, BaseModel):
                 cls.__annotations__.update(hierarchical_class.__annotations__)
-        cls.__annotations__.pop('_BaseModel__attrs')
 
     def __iter__(self):
         yield from self.to_json().items()
@@ -93,7 +93,9 @@ class BaseModel(dict):
 
     @staticmethod
     def __get_attrs(cls):
-        return tuple(cls.__annotations__.keys())
+        attrs = list(cls.__annotations__.keys())
+        attrs.remove('_BaseModel__attrs')
+        return attrs
 
     @staticmethod
     def __get_instance_from_correct_class(cls, union_class_type: Union, payload: dict, attr_name: str):
