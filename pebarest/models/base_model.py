@@ -92,10 +92,10 @@ class BaseModel(dict):
         return False
 
     @staticmethod
-    def __get_attrs(cls):
+    def __get_attrs(cls) -> tuple:
         attrs = list(cls.__annotations__.keys())
         attrs.remove('_BaseModel__attrs')
-        return attrs
+        return tuple(attrs)
 
     @staticmethod
     def __get_instance_from_correct_class(cls, union_class_type: Union, payload: dict, attr_name: str):
