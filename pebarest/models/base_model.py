@@ -8,7 +8,7 @@ from pebarest.exceptions import AttrTypeError, AttrListTypeError, AttrMissingErr
 NoneType = type(None)
 
 
-class BaseModel(dict):
+class BaseModel:
     """
     O proposito da classe é ser utilizada como base para criação de objetos a partir de um dict,
     que podem ser usados como dict, e com validação de tipagem.
