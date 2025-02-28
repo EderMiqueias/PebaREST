@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Union, get_args, get_origin
+from typing import Union, List, Dict, get_origin, get_args
 
 from pebarest.exceptions import AttrTypeError, AttrListTypeError, AttrMissingError
 
@@ -19,9 +19,8 @@ class BaseModel:
         self.__attrs = self.__get_attrs(self)
         for index, attr_name in enumerate(self.__attrs):
             try:
-
-                attr_class_type = self.__check_attr_type(attr_name, args[index])
-                setattr(self, attr_name, BaseModel.transform_attr(args[index], attr_class_type))
+                self.check_attr_type(attr_name, args[index])
+                setattr(self, attr_name, args[index])
             except AttributeError:
                 raise AttrMissingError(attr_name)
             except IndexError:
@@ -133,48 +132,35 @@ class BaseModel:
             return payload
         raise AttrTypeError(cls.__name__, dict)
 
-    @staticmethod
-    def __transform_attr(attr, attr_class_type):
-        if issubclass(attr_class_type, BaseModel) and isinstance(attr, dict):
-            return attr_class_type.from_json(attr)
-        return attr_class_type(attr)
+    def check_attr_type(self, attr_name: str, value):
+        if not self.is_instance_of(value, self.__annotations__[attr_name]):
+            raise AttrTypeError(attr_name, self.__annotations__[attr_name])
 
-    @staticmethod
-    def __transform_list_attr(attr, attr_class_type):
-        type_list = get_args(attr_class_type)
-        if type_list:
-            type_list = type_list[0]
-            if issubclass(type_list, BaseModel):
-                return list(map(lambda item: type_list.from_json(item), attr))
-            return attr
+    def is_instance_of(self, value, type_hint) -> bool:
+        """
+            Checks whether the value belongs to the given type, including support for typing generics.
+        """
+        origin = get_origin(type_hint)
 
-    @staticmethod
-    def transform_attr(attr, attr_class_type):
-        class_type_origin = get_origin(attr_class_type)
-        if class_type_origin in (list, tuple):
-            return BaseModel.__transform_list_attr(attr, attr_class_type)
-        elif class_type_origin is Union:
-            return attr
-        return BaseModel.__transform_attr(attr, attr_class_type)
+        if origin is None:
+            return isinstance(value, type_hint)
 
-    def __check_attr_type(self, attr_name: str, attr_value):
-        attr_type = type(attr_value)
-        attr_class_type = self.__annotations__[attr_name]
-        if attr_type != attr_class_type:
-            class_type_origin = get_origin(attr_class_type)
-            class_type_args = get_args(attr_class_type)
-            if class_type_origin is Union:
-                if get_origin(class_type_args[0]) in (list, tuple): # é uma lista opcional
-                    return attr_class_type
-                if self.__type_is_subclass_of_class_tuple(attr_type, class_type_args):
-                    return attr_class_type
-                if not isinstance(attr_value, class_type_args):
-                    raise AttrListTypeError(attr_name, class_type_args)
-            elif class_type_origin in (list, tuple):
-                return attr_class_type
-            else:
-                raise AttrTypeError(attr_name, attr_class_type)
-        return attr_class_type
+        if origin is Union:
+            return any(self.is_instance_of(value, arg) for arg in get_args(type_hint))
+
+        if origin is list or origin is List:
+            if not isinstance(value, list):
+                return False
+            element_type = get_args(type_hint)[0]
+            return all(self.is_instance_of(item, element_type) for item in value)
+
+        if origin is dict or origin is Dict:
+            if not isinstance(value, dict):
+                return False
+            key_type, value_type = get_args(type_hint)
+            return all(self.is_instance_of(k, key_type) and self.is_instance_of(v, value_type) for k, v in value.items())
+
+        return isinstance(value, origin)
 
 
     def to_dict(self) -> dict:
