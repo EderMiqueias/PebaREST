@@ -51,6 +51,10 @@ class BaseModel:
     def __getitem__(self, item):
         return getattr(self, item)
 
+    @property
+    def __dict__(self):
+        return self.to_dict()
+
     @staticmethod
     def _get_internal_attrs_keys() -> tuple:
         return '_BaseModel__attrs', '_BaseModel__sub_instances'
