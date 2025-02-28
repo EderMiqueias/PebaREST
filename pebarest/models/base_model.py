@@ -178,7 +178,8 @@ class BaseModel:
                 raise AttrTypeError(attr_name, attr_class_type)
         return attr_class_type
 
-    def to_json(self) -> dict:
+
+    def to_dict(self) -> dict:
         json_object = {}
         for attr_name in self.__attrs:
             attr = getattr(self, attr_name)
