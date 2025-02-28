@@ -39,17 +39,13 @@ class BaseModel:
                 cls.__annotations__.update(hierarchical_class.__annotations__)
 
     def __iter__(self):
-        yield from self.to_json().items()
+        yield from self.to_dict().items()
 
     def __str__(self):
-        return json.dumps(self.to_json())
+        return self.__repr__()
 
     def __repr__(self):
-        return self.__str__()
-
-    def __setattr__(self, key, value):
-        transformed_value = BaseModel.transform_attr(value, self.__annotations__[key])
-        super().__setattr__(key, transformed_value)
+        return json.dumps(self.to_dict())
 
     def __setitem__(self, key, value):
         self.__setattr__(key, value)
