@@ -31,8 +31,6 @@ class BaseModel:
                     return
                 raise AttrMissingError(attr_name)
 
-        super().__init__(self.to_json())
-
     def __init_subclass__(cls, **kwargs):
         for hierarchical_class in cls.__mro__:
             if issubclass(hierarchical_class, BaseModel):
