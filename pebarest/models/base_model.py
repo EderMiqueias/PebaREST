@@ -1,14 +1,13 @@
-import json
 from datetime import datetime
 from typing import Union, List, Dict, get_origin, get_args
 
-from pebarest.exceptions import AttrTypeError, AttrListTypeError, AttrMissingError
-
+from pebarest.exceptions import AttrTypeError, AttrListTypeError, AttrMissingError, EntityAttrTypeError
+from pebarest.utils.json import JsonClass
 
 NoneType = type(None)
 
 
-class BaseModel:
+class BaseModel(JsonClass):
     """
     O proposito da classe é ser utilizada como base para criação de objetos a partir de um dict,
     que podem ser usados como dict, e com validação de tipagem.
@@ -39,12 +38,6 @@ class BaseModel:
 
     def __iter__(self):
         yield from self.to_dict().items()
-
-    def __str__(self):
-        return self.__repr__()
-
-    def __repr__(self):
-        return json.dumps(self.to_dict())
 
     def __setitem__(self, key, value):
         self.__setattr__(key, value)
