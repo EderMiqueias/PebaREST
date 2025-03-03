@@ -18,8 +18,10 @@ class BaseModel(JsonClass):
         self.__attrs = self.__get_attrs(self)
         for attr_name in self.__attrs:
             try:
-                self.check_attr_type(attr_name, kwargs[attr_name])
-                setattr(self, attr_name, kwargs[attr_name])
+                if instancied_subclass := self.check_attr_type(attr_name, kwargs[attr_name]):
+                    setattr(self, attr_name, instancied_subclass)
+                else:
+                    setattr(self, attr_name, kwargs[attr_name])
             except KeyError:
                 raise AttrMissingError(attr_name)
             except AttributeError:
@@ -92,7 +94,13 @@ class BaseModel(JsonClass):
         return tuple(attrs)
 
     def check_attr_type(self, attr_name: str, value):
-        if not self.is_instance_of(value, self.__annotations__[attr_name]):
+        type_hint = self.__annotations__[attr_name]
+        if issubclass(type_hint, BaseModel):
+            if isinstance(value, type_hint):
+                return value
+            return type_hint(**value)
+
+        if not self.is_instance_of(value, type_hint):
             raise AttrTypeError(attr_name, self.__annotations__[attr_name])
 
     def is_instance_of(self, value, type_hint) -> bool:
