@@ -96,44 +96,6 @@ class BaseModel:
         attrs.remove('_BaseModel__attrs')
         return tuple(attrs)
 
-    @staticmethod
-    def __get_instance_from_correct_class(cls, union_class_type: Union, payload: dict, attr_name: str):
-        class_type_args = get_args(union_class_type)
-        for ct_arg in class_type_args:
-            try:
-                return ct_arg.from_json(payload[attr_name])
-            except AttrTypeError:
-                return payload[attr_name]
-            except (AttrMissingError, AttributeError):
-                pass
-        if hasattr(cls, attr_name):
-            return getattr(cls, attr_name)
-
-    @staticmethod
-    def __from_key(cls, payload: dict, key: str):
-        attrs_sub_instances = cls.__get_attrs_instance(cls)
-        if key in attrs_sub_instances:
-            if get_origin(attrs_sub_instances[key]) is Union:
-                # if NoneType in get_args(attrs_sub_instances[key]) and (key not in payload.keys()) and hasattr(cls, key):
-                #     return getattr(cls, key)
-                return cls.__get_instance_from_correct_class(cls, attrs_sub_instances[key], payload, key)
-            return attrs_sub_instances[key].from_json(payload[key])
-        elif cls.__check_attr_is_optional(cls, key) and (key not in payload.keys()) and hasattr(cls, key):
-            return getattr(cls, key)
-        return payload.get(key)
-
-    @classmethod
-    def from_json(cls, payload: dict):
-        type_payload = type(payload)
-        if type_payload is dict:
-            attrs = cls.__get_attrs(cls)
-            return cls(
-                *(cls.__from_key(cls, payload, attr_key) for attr_key in attrs)
-            )
-        if issubclass(type_payload, BaseModel):
-            return payload
-        raise AttrTypeError(cls.__name__, dict)
-
     def check_attr_type(self, attr_name: str, value):
         if not self.is_instance_of(value, self.__annotations__[attr_name]):
             raise AttrTypeError(attr_name, self.__annotations__[attr_name])
