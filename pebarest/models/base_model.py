@@ -15,12 +15,14 @@ class BaseModel:
     """
     __attrs: tuple = ()
 
-    def __init__(self, *args):
+    def __init__(self, **kwargs):
         self.__attrs = self.__get_attrs(self)
-        for index, attr_name in enumerate(self.__attrs):
+        for attr_name in self.__attrs:
             try:
-                self.check_attr_type(attr_name, args[index])
-                setattr(self, attr_name, args[index])
+                self.check_attr_type(attr_name, kwargs[attr_name])
+                setattr(self, attr_name, kwargs[attr_name])
+            except KeyError:
+                raise AttrMissingError(attr_name)
             except AttributeError:
                 raise AttrMissingError(attr_name)
             except IndexError:
