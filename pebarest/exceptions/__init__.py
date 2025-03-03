@@ -1,2 +1,2 @@
-from .base_model_exceptions import AttrTypeError, AttrListTypeError, AttrMissingError
+from .base_model_exceptions import AttrTypeError, AttrListTypeError, AttrMissingError, EntityAttrTypeError
 from .app_exeptions import RouteAlreadyExistsError, MethodNotAllowedError

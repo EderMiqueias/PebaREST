@@ -24,3 +24,10 @@ class AttrMissingError(Exception):
 
     def __init__(self, attr_name: str):
         self.attr_name = attr_name
+
+
+class EntityAttrTypeError(Exception):
+    attr_name: str
+
+    def __init__(self, attr_name: str):
+        self.attr_name = attr_name
