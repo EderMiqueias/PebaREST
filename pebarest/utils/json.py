@@ -1,3 +1,14 @@
+class JsonClass:
+    def __iter__(self):
+        raise NotImplementedError()
+
+    def __str__(self):
+        return self.__repr__()
+
+    def __repr__(self):
+        return "{" + ", ".join(f"{to_double_quoted_string(key)}: {to_serializable(val)}" for key, val in self) + "}"
+
+
 def to_double_quoted_string(value) -> str:
     """
     Converts a string value to a double-quoted representation.
@@ -27,6 +38,8 @@ def to_serializable(value) -> str:
         return "[" + ", ".join(to_serializable(item) for item in value) + "]"
     elif value is None:
         return "null"
+    elif isinstance(value, JsonClass):
+        return value.__repr__()
     else:
         raise TypeError(f"Type {type(value)} is not supported.")
 
