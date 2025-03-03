@@ -24,6 +24,8 @@ class BaseModel(JsonClass):
                 raise AttrMissingError(attr_name)
             except AttributeError:
                 raise AttrMissingError(attr_name)
+            except TypeError:
+                raise EntityAttrTypeError(attr_name)
             except IndexError:
                 if self.__check_attr_is_optional(self, attr_name):
                     if not hasattr(self, attr_name):
