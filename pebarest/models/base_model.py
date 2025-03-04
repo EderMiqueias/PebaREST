@@ -112,21 +112,18 @@ class BaseModel(JsonClass):
         if origin is None:
             return isinstance(value, type_hint)
 
+        args = get_args(type_hint)
+
         if origin is Union:
-            return any(self.is_instance_of(value, arg) for arg in get_args(type_hint))
+            return any(self.is_instance_of(value, arg) for arg in args)
 
-        if origin is list or origin is List:
-            if not isinstance(value, list):
-                return False
-            element_type = get_args(type_hint)[0]
-            return all(self.is_instance_of(item, element_type) for item in value)
+        if origin in (list, List):
+            return isinstance(value, list) and all(map(lambda item: self.is_instance_of(item, args[0]), value))
 
-        if origin is dict or origin is Dict:
-            if not isinstance(value, dict):
-                return False
-            key_type, value_type = get_args(type_hint)
-            return all(self.is_instance_of(k, key_type) and self.is_instance_of(v, value_type) for k, v in value.items())
-
+        if origin in (dict, Dict):
+            return (isinstance(value, dict) and
+                    all(map(lambda kv: self.is_instance_of(kv[0], args[0]) and
+                                       self.is_instance_of(kv[1], args[1]), value.items())))
         return isinstance(value, origin)
 
 
