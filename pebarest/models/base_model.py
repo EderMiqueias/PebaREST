@@ -41,7 +41,7 @@ class BaseModel(JsonClass):
         yield from self.to_dict().items()
 
     def __setitem__(self, key, value):
-        self.__setattr__(key, value)
+        setattr(self, key, value)
 
     def __getitem__(self, item):
         return getattr(self, item)
