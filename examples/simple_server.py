@@ -1,12 +1,12 @@
 from pebarest import App
-from pebarest.models import Resource
+from pebarest.models import Resource, Request
 
 from wsgiref.simple_server import make_server
 
 
 # Class for simple resource
 class GreetingResource(Resource):
-    def get(self, request, *args, **kwargs):
+    def get(self, request: Request, *args, **kwargs):
         return {"message": "Hello my little peba!"}
 
 
