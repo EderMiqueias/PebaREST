@@ -53,16 +53,16 @@ class App:
 
     def __call__(self, environ, start_response):
         path = environ['PATH_INFO']
-        if path in self._routes_manager:
+        try:
             resource = self._routes_manager.routes[path]
-            request = Request(environ)
-
-            try:
-                response = resource(environ['REQUEST_METHOD'], request)
-            except MethodNotAllowedError as e:
-                response = Response(405, self.headers, self.error_format(e.title, method=e.method))
-            start_response(response.get_status(), list(response.headers.items()))
-            return response.get_body_bytes()
-        else:
+        except KeyError:
             start_response('404 Not Found', [('Content-Type', 'text/plain')])
             return [b'Resource not found']
+
+        request = Request(environ)
+        try:
+            response = resource(environ['REQUEST_METHOD'], request)
+        except MethodNotAllowedError as e:
+            response = Response(405, self.headers, self.error_format(e.title, method=e.method))
+        start_response(response.get_status(), list(response.headers.items()))
+        return response.get_body_bytes()
