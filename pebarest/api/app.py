@@ -1,7 +1,7 @@
 from typing import Union
 
 from pebarest.models import Resource, Request, Response, DefaultErrorResponse
-from pebarest.exceptions import RouteAlreadyExistsError, MethodNotAllowedError
+from pebarest.exceptions import RouteAlreadyExistsError, MethodNotAllowedError, NotFoundError
 
 
 class RoutesManager:
@@ -23,6 +23,12 @@ class RoutesManager:
         if path in self.__routes:
             raise RouteAlreadyExistsError(path)
         self.__routes[path] = resource
+
+    def get_route_resource(self, path: str) -> Resource:
+        try:
+            return self.__routes[path]
+        except KeyError:
+            raise NotFoundError()
 
 
 class App:
@@ -51,18 +57,15 @@ class App:
             resource = Resource.from_anonymous_object(resource, self.headers)
             self._routes_manager.add_route(path, resource)
 
-    def __call__(self, environ, start_response):
-        path = environ['PATH_INFO']
+    def __call__(self, environ: dict, start_response):
         try:
-            resource = self._routes_manager.routes[path]
-        except KeyError:
-            start_response('404 Not Found', [('Content-Type', 'text/plain')])
-            return [b'Resource not found']
-
-        request = Request(environ)
-        try:
+            resource = self._routes_manager.get_route_resource(environ['PATH_INFO'])
+            request = Request(environ)
             response = resource(environ['REQUEST_METHOD'], request)
         except MethodNotAllowedError as e:
             response = Response(405, self.headers, self.error_format(e.title, method=e.method))
+        except NotFoundError as e:
+            response = Response(e.status_code, self.headers, self.error_format(e.message))
+
         start_response(response.get_status(), list(response.headers.items()))
         return response.get_body_bytes()

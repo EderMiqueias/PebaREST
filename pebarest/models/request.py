@@ -44,4 +44,5 @@ class Request:
         return {key: value[0] if len(value) == 1 else value
                 for key, value in parse_qs(query_string).items()}
 
+
 __all__ = ['Request']
