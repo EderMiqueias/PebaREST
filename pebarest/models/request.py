@@ -1,4 +1,6 @@
-from typing import Optional
+import json
+
+from typing import Optional, Union
 from urllib.parse import parse_qs
 
 
@@ -16,12 +18,12 @@ class Request:
     headers: dict
     _headers: dict
     params: dict
-    body: Optional[dict]
+    body: Optional[Union[dict, str]]
 
-    def __init__(self, environ):
+    def __init__(self, environ: dict):
         self.headers, self._headers = self.parse_headers(environ)
         self.params = self.parse_params(environ)
-        self.body = {}
+        self.body = self._parse_body(environ)
 
     @staticmethod
     def parse_headers(environ):
@@ -43,6 +45,18 @@ class Request:
         query_string = environ.get('QUERY_STRING', '')
         return {key: value[0] if len(value) == 1 else value
                 for key, value in parse_qs(query_string).items()}
+
+    @staticmethod
+    def _parse_body(environ) -> Optional[Union[dict, str]]:
+        """Reads and decodes the body of the POST request."""
+        length = int(environ.get('CONTENT_LENGTH', 0))
+        if length > 0:
+            body_bytes = environ['wsgi.input'].read(length)
+            try:
+                return json.loads(body_bytes.decode('utf-8'))
+            except json.JSONDecodeError:
+                return body_bytes.decode('utf-8')
+        return None
 
 
 __all__ = ['Request']
