@@ -1,3 +1,5 @@
+from typing import get_type_hints, get_args, Optional, Dict, Callable
+
 from pebarest.models.request import Request
 from pebarest.models.response import Response
 from pebarest.exceptions import MethodNotAllowedError
@@ -5,19 +7,17 @@ from pebarest.models.http import HttpMethods, http_methods_list
 
 
 class Resource:
-    _map_methods: dict
-    headers: dict
+    _map_methods: Dict[str, Callable]
+    headers: Dict[str, str]
 
-    def __init__(self, default_headers: dict=None):
-        self._map_methods = {
-            'GET': self.get,
-            'POST': self.post,
-            'PUT': self.put,
-            'PATCH': self.patch,
-            'DELETE': self.delete,
-            'HEAD': self.head,
-            'OPTIONS': self.options
-        }
+    def __init__(self, default_headers: Optional[Dict[str, str]] = None):
+        self._map_methods = {}
+
+        for method in ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']:
+            handler = getattr(self, method.lower(), None)
+            if handler:
+                self._map_methods[method] = handler
+
         self.headers = default_headers or {}
 
     def __call__(self, method, request: Request, *args, **kwargs) -> Response:
