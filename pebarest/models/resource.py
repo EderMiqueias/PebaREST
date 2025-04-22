@@ -8,15 +8,25 @@ from pebarest.models.http import HttpMethods, http_methods_list
 
 class Resource:
     _map_methods: Dict[str, Callable]
+    _request_body_type: Dict[str, Optional[type]]
     headers: Dict[str, str]
 
     def __init__(self, default_headers: Optional[Dict[str, str]] = None):
         self._map_methods = {}
+        self._request_body_type = {}
 
         for method in ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']:
             handler = getattr(self, method.lower(), None)
             if handler:
                 self._map_methods[method] = handler
+                annotations = get_type_hints(handler)
+
+                request_type = annotations.get('request')
+                if request_type:
+                    args = get_args(request_type)
+                    self._request_body_type[method] = args[0] if args else None
+                else:
+                    self._request_body_type[method] = None
 
         self.headers = default_headers or {}
 
