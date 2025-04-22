@@ -66,6 +66,8 @@ class App:
             response = Response(405, self.headers, self.error_format(e.title, method=e.method))
         except NotFoundError as e:
             response = Response(e.status_code, self.headers, self.error_format(e.message))
+        except Exception as e:
+            response = Response(500, self.headers, self.error_format('Internal Server Error'))
 
         start_response(response.get_status(), list(response.headers.items()))
         return response.get_body_bytes()
