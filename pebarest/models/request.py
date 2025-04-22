@@ -1,6 +1,6 @@
 import json
 
-from typing import Optional, Union
+from typing import Generic, TypeVar
 from urllib.parse import parse_qs
 
 
@@ -13,12 +13,13 @@ DEFAULT_HEADERS = [
     'CONNECTION'
 ]
 
+T = TypeVar("T")
 
-class Request:
+
+class Request(Generic[T]):
     headers: dict
     _headers: dict
     params: dict
-    body: Optional[Union[dict, str]]
 
     def __init__(self, environ: dict):
         self.headers, self._headers = self.parse_headers(environ)
@@ -47,7 +48,7 @@ class Request:
                 for key, value in parse_qs(query_string).items()}
 
     @staticmethod
-    def _parse_body(environ) -> Optional[Union[dict, str]]:
+    def _parse_body(environ) -> T:
         """Reads and decodes the body of the POST request."""
         length = int(environ.get('CONTENT_LENGTH', 0))
         if length > 0:
