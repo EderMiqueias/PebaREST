@@ -9,8 +9,8 @@ NoneType = type(None)
 
 class BaseModel(JsonClass):
     """
-    O proposito da classe é ser utilizada como base para criação de objetos a partir de um dict,
-    que podem ser usados como dict, e com validação de tipagem.
+    The purpose of the class is to be used as a base for creating objects from a dict,
+    which can be used as a dict, and with typing validation.
     """
     __attrs: tuple = ()
 
