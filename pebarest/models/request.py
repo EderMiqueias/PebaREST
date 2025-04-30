@@ -20,6 +20,7 @@ class Request(Generic[T]):
     headers: dict
     _headers: dict
     params: dict
+    body: T
 
     def __init__(self, environ: dict):
         self.headers, self._headers = self.parse_headers(environ)
