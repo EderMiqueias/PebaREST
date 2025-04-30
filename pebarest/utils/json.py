@@ -62,3 +62,16 @@ def dumps(data) -> bytes:
     else:
         raise ValueError("The input data is invalid.")
     return serialized.encode("utf-8")
+
+def get_json_str_type_from_type(obj_type: type) -> str:
+    if obj_type == str:
+        return 'string'
+    if obj_type == int:
+        return 'integer'
+    if obj_type == float:
+        return 'number'
+    if obj_type == bool:
+        return 'boolean'
+    if obj_type == list:
+        return 'array'
+    return 'object'
