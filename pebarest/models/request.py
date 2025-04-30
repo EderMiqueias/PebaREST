@@ -22,10 +22,14 @@ class Request(Generic[T]):
     params: dict
     body: T
 
-    def __init__(self, environ: dict):
+    def __init__(self, environ: dict, body_type: type=None):
         self.headers, self._headers = self.parse_headers(environ)
         self.params = self.parse_params(environ)
-        self.body = self._parse_body(environ)
+
+        if body_type is not None:
+            self.body = body_type(**self._parse_body(environ))
+        else:
+            self.body = self._parse_body(environ)
 
     @staticmethod
     def parse_headers(environ):
