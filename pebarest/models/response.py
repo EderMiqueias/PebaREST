@@ -20,7 +20,12 @@ class Response:
         return f"{self.status} "
 
 
-class DefaultErrorResponse(dict):
+class ErrorResponse(dict):
+    def __init__(self):
+        super().__init__()
+
+
+class DefaultErrorResponse(ErrorResponse):
     def __init__(self, error_message: str, **kwargs):
         super().__init__()
         self.__setitem__('title', error_message)
@@ -29,4 +34,5 @@ class DefaultErrorResponse(dict):
             self.__setitem__(key, value)
 
 
-__all__ = ['Response', 'DefaultErrorResponse']
+
+__all__ = ['Response', 'ErrorResponse', 'DefaultErrorResponse']
