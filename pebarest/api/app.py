@@ -60,8 +60,7 @@ class App:
     def __call__(self, environ: dict, start_response):
         try:
             resource = self._routes_manager.get_route_resource(environ['PATH_INFO'])
-            request = Request(environ)
-            response = resource(environ['REQUEST_METHOD'], request)
+            response = resource(environ)
         except MethodNotAllowedError as e:
             response = Response(405, self.headers, self.error_format(e.title, method=e.method))
         except NotFoundError as e:

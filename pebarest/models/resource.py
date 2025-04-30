@@ -20,8 +20,8 @@ class Resource:
             if handler:
                 self._map_methods[method] = handler
                 annotations = get_type_hints(handler)
-
                 request_type = annotations.get('request')
+
                 if request_type:
                     args = get_args(request_type)
                     self._request_body_type[method] = args[0] if args else None
@@ -30,9 +30,12 @@ class Resource:
 
         self.headers = default_headers or {}
 
-    def __call__(self, method, request: Request, *args, **kwargs) -> Response:
+    def __call__(self, environ, *args, **kwargs) -> Response:
         body_response, status_code = None, 200
+        method = environ['REQUEST_METHOD']
+        request = Request(environ)
         call_return = self._map_methods[method](request, *args, **kwargs)
+
         if type(call_return) == Response:
             return call_return
         if type(call_return) == dict:
