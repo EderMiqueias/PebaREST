@@ -35,6 +35,10 @@ class DefaultErrorResponse(ErrorResponse):
             self.__setitem__(key, value)
 
     @classmethod
+    def attr_missing_error(cls, e: AttrMissingError, **kwargs):
+        return cls(f"Missing '{e.attr_name}' attribute.", **kwargs)
+
+    @classmethod
     def attr_type_error(cls, e: AttrTypeError, **kwargs):
         attr_type = get_json_str_type_from_type(e.class_type)
         return cls(f"Attribute '{e.attr_name}' must be a {attr_type}.", **kwargs)

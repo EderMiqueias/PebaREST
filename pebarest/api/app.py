@@ -1,7 +1,8 @@
 from typing import Union
 
 from pebarest.models import Resource, Request, Response, DefaultErrorResponse
-from pebarest.exceptions import RouteAlreadyExistsError, MethodNotAllowedError, NotFoundError
+from pebarest.exceptions import RouteAlreadyExistsError, MethodNotAllowedError, NotFoundError, AttrMissingError, \
+    AttrTypeError
 
 
 class RoutesManager:
@@ -65,6 +66,8 @@ class App:
             response = Response(405, self.headers, self.error_format(e.title, method=e.method))
         except NotFoundError as e:
             response = Response(e.status_code, self.headers, self.error_format(e.message))
+        except AttrMissingError as e:
+            response = Response(422, self.headers, self.error_format.attr_missing_error(e))
         except AttrTypeError as e:
             response = Response(422, self.headers, self.error_format.attr_type_error(e))
         except Exception as e:
