@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Union, List, Dict, get_origin, get_args
 
-from pebarest.exceptions import AttrTypeError, AttrListTypeError, AttrMissingError, EntityAttrTypeError
+from pebarest.exceptions import AttrTypeError, AttrListTypeError, AttrMissingError
 from pebarest.utils.json import JsonClass
 
 NoneType = type(None)
@@ -24,7 +24,7 @@ class BaseModel(JsonClass):
             except AttributeError:
                 raise AttrMissingError(attr_name)
             except TypeError:
-                raise EntityAttrTypeError(attr_name)
+                raise AttrTypeError(attr_name, self.__annotations__[attr_name])
             except IndexError:
                 if self.__check_attr_is_optional(self, attr_name):
                     if not hasattr(self, attr_name):
