@@ -65,6 +65,8 @@ class App:
             response = Response(405, self.headers, self.error_format(e.title, method=e.method))
         except NotFoundError as e:
             response = Response(e.status_code, self.headers, self.error_format(e.message))
+        except AttrTypeError as e:
+            response = Response(422, self.headers, self.error_format.attr_type_error(e))
         except Exception as e:
             response = Response(500, self.headers, self.error_format('Internal Server Error'))
 

@@ -1,6 +1,7 @@
 from typing import Optional, Union, List
 
-from pebarest.utils import dumps
+from pebarest.exceptions import AttrMissingError, AttrTypeError
+from pebarest.utils import dumps, get_json_str_type_from_type
 
 
 class Response:
@@ -33,6 +34,10 @@ class DefaultErrorResponse(ErrorResponse):
         for key, value in kwargs.items():
             self.__setitem__(key, value)
 
+    @classmethod
+    def attr_type_error(cls, e: AttrTypeError, **kwargs):
+        attr_type = get_json_str_type_from_type(e.class_type)
+        return cls(f"Attribute '{e.attr_name}' must be a {attr_type}.", **kwargs)
 
 
 __all__ = ['Response', 'ErrorResponse', 'DefaultErrorResponse']
