@@ -81,6 +81,7 @@ class BaseModel(JsonClass):
             Checks whether the value belongs to the given type, including support for typing generics.
         """
         origin = get_origin(type_hint)
+         # TODO: entender o __new__ e como reutilizar uma instancia de classe para reduzir o tempo de processamento e mover as validações para um dict
 
         if origin is None:
             return isinstance(value, type_hint)
