@@ -38,6 +38,7 @@ class BaseModel(JsonClass):
                 cls.__annotations__.update(hierarchical_class.__annotations__)
 
     def __iter__(self):
+        # TODO: ISSO PODERIA SER FEITO DE FORMA MAIS OTIMIZADA
         yield from self.to_dict().items()
 
     def __setitem__(self, key, value):
