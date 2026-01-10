@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pebarest"
+version = "0.1.0"
+description = "Minha lib customizada"
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["/pebarest"]
+include = ["pebarest*"]
