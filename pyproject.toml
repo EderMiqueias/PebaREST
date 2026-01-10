@@ -9,5 +9,5 @@ description = "PebaRest Framework, fast to code, take the control of your applic
 dependencies = []
 
 [tool.setuptools.packages.find]
-where = ["/pebarest"]
+where = ["."]
 include = ["pebarest*"]
