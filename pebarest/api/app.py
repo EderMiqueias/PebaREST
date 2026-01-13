@@ -35,12 +35,14 @@ class RoutesManager:
 class App:
     def __init__(
             self,
+            import_name: str,
             default_headers: dict=None,
             manager=RoutesManager,
             error_format=DefaultErrorResponse
     ):
         if default_headers is None:
             default_headers = {}
+        self.import_name = import_name
 
         self._routes_manager: RoutesManager = manager()
         self.headers = default_headers
