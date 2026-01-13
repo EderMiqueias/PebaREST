@@ -68,7 +68,7 @@ class App:
 
     @CachedProperty
     def logger(self) -> logging.Logger:
-        return create_logger(self)
+        return create_logger(self.import_name, self.is_debug)
 
     def __call__(self, environ: dict, start_response=None):
         try:
