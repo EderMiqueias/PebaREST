@@ -64,7 +64,11 @@ class App:
             resource = Resource.from_anonymous_object(resource, self.headers)
             self._routes_manager.add_route(path, resource)
 
-    def __call__(self, environ: dict, start_response):
+    @CachedProperty
+    def logger(self) -> logging.Logger:
+        return create_logger(self)
+
+    def __call__(self, environ: dict, start_response=None):
         try:
             resource = self._routes_manager.get_route_resource(environ['PATH_INFO'])
             response = resource(environ)
