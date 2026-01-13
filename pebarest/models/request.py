@@ -55,7 +55,7 @@ class Request(Generic[T]):
     @staticmethod
     def _parse_body(environ) -> T:
         """Reads and decodes the body of the POST request."""
-        length = int(environ.get('CONTENT_LENGTH', 0))
+        length = int(environ.get('CONTENT_LENGTH') or '0')
         if length > 0:
             body_bytes = environ['wsgi.input'].read(length)
             try:
