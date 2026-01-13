@@ -10,10 +10,12 @@ class GreetingResource(Resource):
         return {"message": "Hello my little peba!"}
 
 
+# Main class App definition
 app = App(default_headers={'Content-Type': 'application/json'})
 
 # Add a new route path
 app.add_route('/greeting', GreetingResource())
+
 
 # Start the server
 with make_server('', 8000, app) as httpd:
