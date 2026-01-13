@@ -83,7 +83,17 @@ class App:
         except AttrTypeError as e:
             response = Response(422, self.headers, self.error_format.attr_type_error(e))
         except Exception as e:
+            self.logger.exception(e)
             response = Response(500, self.headers, self.error_format('Internal Server Error'))
+
+        if response.status < 200:
+            self.logger.info(str(response.body))
+        if 300 >= response.status < 400:
+            self.logger.warning(str(response.body))
+        if 400 >= response.status < 500:
+            self.logger.error(str(response.body))
+        elif response.status >= 500:
+            self.logger.critical(str(response.body))
 
         if start_response is not None:
             start_response(response.get_status(), list(response.headers.items()))
