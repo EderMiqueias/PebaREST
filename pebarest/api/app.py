@@ -41,12 +41,14 @@ class App:
             self,
             import_name: str,
             default_headers: dict=None,
+            is_debug: bool=False,
             routes_manager=RoutesManager,
             error_format=DefaultErrorResponse
     ):
         if default_headers is None:
             default_headers = {}
         self.import_name = import_name
+        self.is_debug = is_debug
 
         self._routes_manager: RoutesManager = routes_manager()
         self.headers = default_headers
