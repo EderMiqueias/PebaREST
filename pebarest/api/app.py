@@ -1,8 +1,12 @@
+import logging
+
 from typing import Union
 
 from pebarest.models import Resource, Request, Response, DefaultErrorResponse
 from pebarest.exceptions import RouteAlreadyExistsError, MethodNotAllowedError, NotFoundError, AttrMissingError, \
     AttrTypeError
+from pebarest.utils.caching import CachedProperty
+from pebarest.utils.logging import create_logger
 
 
 class RoutesManager:
@@ -75,5 +79,6 @@ class App:
         except Exception as e:
             response = Response(500, self.headers, self.error_format('Internal Server Error'))
 
-        start_response(response.get_status(), list(response.headers.items()))
+        if start_response is not None:
+            start_response(response.get_status(), list(response.headers.items()))
         return response.get_body_bytes()
