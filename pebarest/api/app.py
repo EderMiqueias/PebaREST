@@ -44,6 +44,7 @@ class App:
             is_debug: bool=False,
             routes_manager=RoutesManager,
             error_format=DefaultErrorResponse
+            # TODO: ADICIONAR UM STATUS_CODE_HANDLER DEFAULT POSSIBILITANDO AO USUARIO RETORNAR O STATUS CODE QUE ELE ACHAR MELHOR A DEPENDER DO TIPO DE ERRO
     ):
         if default_headers is None:
             default_headers = {}
