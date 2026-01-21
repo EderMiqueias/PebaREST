@@ -44,7 +44,7 @@ class Request(Generic[T]):
         return custom_headers, default_headers
 
     @staticmethod
-    def parse_params(environ):
+    def _parse_params(environ):
         """Convert a query string to a dictionary."""
         query_string = environ.get('QUERY_STRING', '')
         return {key: value[0] if len(value) == 1 else value
@@ -60,7 +60,7 @@ class Request(Generic[T]):
                 return json.loads(body_bytes.decode('utf-8'))
             except json.JSONDecodeError:
                 return body_bytes.decode('utf-8')
-        return None
+        return {}
 
 
 __all__ = ['Request']
