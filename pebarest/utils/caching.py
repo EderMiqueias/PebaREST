@@ -1,4 +1,5 @@
 import typing as t
+from typing import Optional
 
 
 class Missing:
@@ -19,7 +20,7 @@ class CachedProperty(property, t.Generic[_T]):
     value. Deleting the property clears the cached value, accessing it
     again will evaluate it again.
 
-    .. code-block:: python
+    code-block:: python
 
         class Example:
             @cached_property
@@ -40,8 +41,8 @@ class CachedProperty(property, t.Generic[_T]):
     def __init__(
         self,
         fget: t.Callable[[t.Any], _T],
-        name: str | None = None,
-        doc: str | None = None,
+        name: Optional[str] = None,
+        doc: Optional[str] = None,
     ) -> None:
         super().__init__(fget, doc=doc)
         self.__name__ = name or fget.__name__
