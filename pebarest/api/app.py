@@ -89,9 +89,9 @@ class App:
 
         if response.status < 200:
             self.logger.info(str(response.body))
-        if 300 >= response.status < 400:
+        elif 300 <= response.status < 400:
             self.logger.warning(str(response.body))
-        if 400 >= response.status < 500:
+        elif 400 <= response.status < 500:
             self.logger.error(str(response.body))
         elif response.status >= 500:
             self.logger.critical(str(response.body))
