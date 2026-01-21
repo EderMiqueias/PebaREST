@@ -27,9 +27,11 @@ class Request(Generic[T]):
         self.params = self.parse_params(environ)
 
         if body_type is not None:
-            self.body = body_type(**self._parse_body(environ))
-        else:
-            self.body = self._parse_body(environ)
+            parsed_body = self._parse_body(environ)
+            if parsed_body:
+                self.body = body_type(**parsed_body)
+                return
+        self.body = self._parse_body(environ)
 
     @staticmethod
     def parse_headers(environ):
