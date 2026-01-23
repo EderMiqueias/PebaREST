@@ -23,4 +23,5 @@ app = App(__name__, default_headers={'Content-Type': 'application/json'})
 app.add_route('/greeting', GreetingResource())
 
 if __name__ == "__main__":
+    # WARNING: THIS FEATURE IS NOT IMPLEMENTED YET. THIS IS JUST AN EXAMPLE OF HOW IT WOULD LOOK LIKE.
     uvicorn.run("simple_server_asgi:app", host="0.0.0.0", port=8080, reload=True)
