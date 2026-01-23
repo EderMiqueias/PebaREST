@@ -11,7 +11,7 @@ class GreetingResource(Resource):
 
 
 # Main class App definition
-app = App(default_headers={'Content-Type': 'application/json'})
+app = App(__name__, default_headers={'Content-Type': 'application/json'})
 
 # Add a new route path
 app.add_route('/greeting', GreetingResource())
