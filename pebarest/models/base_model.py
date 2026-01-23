@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Union, List, Dict, get_origin, get_args
+from typing import Union, List, Dict, get_origin, get_args, Optional
 
 from pebarest.exceptions import AttrTypeError, AttrListTypeError, AttrMissingError
 from pebarest.utils.json import JsonClass
@@ -113,89 +113,3 @@ class BaseModel(JsonClass):
 
 
 __all__ = ['BaseModel', 'NoneType']
-
-
-class A(BaseModel):
-    a: str
-    b: str
-    c: int
-
-
-class B(BaseModel):
-    b: int
-    a: A
-
-
-d = {
-    'b': 12,
-    'a': {
-        'a': 'aaaaaaaaaaaaaa',
-        'b': 'bbbbbbbbbbbbbb',
-        'c': 289828282
-    }
-}
-
-# a = A(a='a', b='b', c=9)
-
-from datetime import datetime as dt
-
-# s = dt.now()
-# for i in range(1000000):
-#     B(**d)
-# f = dt.now()
-# print('Tempo de execução utilizando a BaseModel do PebaREST:', (f - s).total_seconds())
-
-# print(B(b=1, a=a).__dict__)
-# print(B(**d))
-
-# class C(BaseModel):
-#     a: str
-#
-# class D(BaseModel):
-#     c: C
-#
-# d1 = D(c=C(a='1'))
-# print(d1)
-
-from pydantic import BaseModel as BaseModelPydantic
-
-class A(BaseModelPydantic):
-    a: str
-    b: str
-    c: int
-
-
-class B(BaseModelPydantic):
-    b: int
-    a: A
-
-# s = dt.now()
-# for i in range(1000000):
-#     B(**d)
-# f = dt.now()
-# print('Tempo de execução utilizando a BaseModel importada da pydantic:', (f - s).total_seconds())
-# print('\nProcess finished with exit code 0\n\n\n\n\n')
-
-class A:
-    a: str
-    b: str
-    c: int
-
-    def __init__(self, a, b, c):
-        setattr(self, 'a', a)
-        setattr(self, 'b', b)
-        setattr(self, 'c', c)
-
-class B:
-    b: int
-    a: dict
-
-    def __init__(self, a: dict, b):
-        setattr(self, 'a', A(**a))
-        setattr(self, 'b', b)
-
-# s = dt.now()
-# for i in range(1000000):
-#     B(**d)
-# f = dt.now()
-# print('SIMPLE CLASS TIME:', (f - s).total_seconds())
