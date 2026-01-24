@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import datetime, date
+from typing import Any
 
 
 class JsonClass:
@@ -22,7 +23,7 @@ def to_double_quoted_string(value) -> str:
     return '"{}"'.format(value.replace("\\", "\\\\").replace("\"", "\\\""))
 
 
-def to_serializable(value) -> str:
+def to_serializable(value: Any) -> str:
     """
     Converts a value to a serializable string.
 
@@ -37,11 +38,11 @@ def to_serializable(value) -> str:
         return repr(value)
     elif isinstance(value, dict):
         return "{" + ", ".join(f"{to_double_quoted_string(key)}: {to_serializable(val)}" for key, val in value.items()) + "}"
-    elif isinstance(value, list):
+    elif isinstance(value, (list, tuple, set)):
         return "[" + ", ".join(to_serializable(item) for item in value) + "]"
     elif value is None:
         return "null"
-    elif isinstance(value, datetime):
+    elif isinstance(value, (datetime, date)):
         return to_double_quoted_string(value.isoformat())
     elif isinstance(value, JsonClass):
         return value.__repr__()
@@ -49,24 +50,12 @@ def to_serializable(value) -> str:
         raise TypeError(f"Type {type(value)} is not supported.")
 
 
-def dumps(data) -> bytes:
+def dumps(data: Any) -> bytes:
     """
-    Converts a dictionary or list to a byte format.
+    Serializes various data types to bytes (UTF-8), in a format similar to JSON.
+    """
+    return to_serializable(data).encode("utf-8")
 
-    :param data: Dictionary or list to be converted.
-    :return: Data in byte format.
-    """
-    if isinstance(data, dict):
-        serialized = "{" + ", ".join(f"{to_double_quoted_string(key)}: {to_serializable(value)}" for key, value in data.items()) + "}"
-    elif isinstance(data, list):
-        serialized = "[" + ", ".join(to_serializable(item) for item in data) + "]"
-    elif isinstance(data, str):
-        serialized = data
-    elif data is None:
-        serialized = 'null'
-    else:
-        raise ValueError("The input data is invalid.")
-    return serialized.encode("utf-8")
 
 def get_json_str_type_from_type(obj_type: type) -> str:
     if obj_type == str:
