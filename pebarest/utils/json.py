@@ -41,7 +41,7 @@ def to_serializable(value) -> str:
         return "[" + ", ".join(to_serializable(item) for item in value) + "]"
     elif value is None:
         return "null"
-    elif isinstance(value, datetime.datetime):
+    elif isinstance(value, datetime):
         return to_double_quoted_string(value.isoformat())
     elif isinstance(value, JsonClass):
         return value.__repr__()
