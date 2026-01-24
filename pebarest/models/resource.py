@@ -36,11 +36,11 @@ class Resource:
         request = Request(environ, self._request_body_type[method])
         call_return = self._map_methods[method](request, *args, **kwargs)
 
-        if type(call_return) == Response:
+        if isinstance(call_return, Response):
             return call_return
-        if type(call_return) == dict:
+        if isinstance(call_return, (dict, str, int, float, bool, list)):
             body_response = call_return
-        elif type(call_return) == tuple:
+        elif isinstance(call_return, tuple):
             if len(call_return) > 0:
                 body_response = call_return[0]
                 if len(call_return) > 1:
