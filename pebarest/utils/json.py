@@ -1,3 +1,6 @@
+from datetime import datetime
+
+
 class JsonClass:
     def __iter__(self):
         raise NotImplementedError()
@@ -38,6 +41,8 @@ def to_serializable(value) -> str:
         return "[" + ", ".join(to_serializable(item) for item in value) + "]"
     elif value is None:
         return "null"
+    elif isinstance(value, datetime.datetime):
+        return to_double_quoted_string(value.isoformat())
     elif isinstance(value, JsonClass):
         return value.__repr__()
     else:
