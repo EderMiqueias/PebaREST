@@ -15,8 +15,8 @@ class Resource:
         self._map_methods = {}
         self._request_body_type = {}
 
-        for method in ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']:
-            handler = getattr(self, method.lower(), None)
+        for method in http_methods_list:
+            handler = getattr(self, method, None)
             if handler:
                 self._map_methods[method] = handler
                 annotations = get_type_hints(handler)
