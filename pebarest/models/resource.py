@@ -48,7 +48,7 @@ class Resource:
         return Response(status_code, self.headers, body_response)
 
     @property
-    def map_methods(self):
+    def used_methods(self):
         return self.__map_methods
 
     def get(self, request: Request, *args, **kwargs) -> Response:
