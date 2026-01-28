@@ -8,12 +8,12 @@ from pebarest.models.http import HttpMethods, http_methods_list
 
 class Resource:
     __map_methods: Dict[str, Callable]
-    _request_body_type: Dict[str, Optional[type]]
+    __method_body_type: Dict[str, Optional[type]]
     headers: Dict[str, str]
 
     def __init__(self, default_headers: Optional[Dict[str, str]] = None):
         self.__map_methods = {}
-        self._request_body_type = {}
+        self.__method_body_type = {}
 
         for method in http_methods_list:
             handler = getattr(self, method, None)
@@ -24,16 +24,16 @@ class Resource:
 
                 if request_type:
                     args = get_args(request_type)
-                    self._request_body_type[method] = args[0] if args else None
+                    self.__method_body_type[method] = args[0] if args else None
                 else:
-                    self._request_body_type[method] = None
+                    self.__method_body_type[method] = None
 
         self.headers = default_headers or {}
 
     def __call__(self, environ, *args, **kwargs) -> Response:
         body_response, status_code = None, 200
         method = environ['REQUEST_METHOD']
-        request = Request(environ, self._request_body_type[method])
+        request = Request(environ, self.__method_body_type[method])
         call_return = self.__map_methods[method](request, *args, **kwargs)
 
         if isinstance(call_return, Response):
