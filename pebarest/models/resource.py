@@ -31,7 +31,7 @@ class Resource:
 
     def __call__(self, environ, *args, **kwargs) -> Response:
         body_response, status_code = None, 200
-        method = environ['REQUEST_METHOD']
+        method = environ['REQUEST_METHOD'].lower()
         request = Request(environ, self.__method_body_type[method])
         call_return = self.__map_methods[method](request, *args, **kwargs)
 
