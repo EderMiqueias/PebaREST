@@ -48,11 +48,11 @@ class Resource:
         return Response(status_code, self.headers, body_response)
 
     @property
-    def used_methods(self):
+    def used_methods(self) -> Dict[str, Callable]:
         return self.__map_methods
 
     @property
-    def method_body_type(self):
+    def method_body_type(self) -> Dict[str, Optional[type]]:
         return self.__method_body_type
 
     def get(self, request: Request, *args, **kwargs) -> Response:

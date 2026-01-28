@@ -1,8 +1,8 @@
 import logging
 
-from typing import Union
+from typing import Union, Dict
 
-from pebarest.models import Resource, Request, Response, DefaultErrorResponse
+from pebarest.models import Resource, Response, DefaultErrorResponse
 from pebarest.exceptions import RouteAlreadyExistsError, MethodNotAllowedError, NotFoundError, AttrMissingError, \
     AttrTypeError
 from pebarest.utils.caching import CachedProperty
@@ -21,7 +21,7 @@ class RoutesManager:
         yield from self.__routes.keys()
 
     @property
-    def routes(self):
+    def routes(self) -> Dict[str, Resource]:
         return self.__routes
 
     def add_route(self, path: str, resource: Resource):
