@@ -1,10 +1,14 @@
 import logging
 
-from typing import Union, Dict
+from typing import Union, Dict, Type
 
 from pebarest.models import Resource, Response, DefaultErrorResponse
 from pebarest.exceptions import RouteAlreadyExistsError, MethodNotAllowedError, NotFoundError, AttrMissingError, \
     AttrTypeError
+from pebarest.models.response import ErrorResponse
+from pebarest.testing import UnitTestGenerator
+from pebarest.testing.base_test_generator import TestGenerator
+from pebarest.testing.test_client import TestClient
 from pebarest.utils.caching import CachedProperty
 from pebarest.utils.logging import create_logger
 
@@ -37,13 +41,20 @@ class RoutesManager:
 
 
 class App:
+    error_format: Type[ErrorResponse]
+    import_name: str
+    default_headers: dict
+    is_debug: bool
+    testing_generator: TestGenerator
+    
     def __init__(
             self,
             import_name: str,
             default_headers: dict=None,
             is_debug: bool=True,
             routes_manager=RoutesManager,
-            error_format=DefaultErrorResponse
+            error_format=DefaultErrorResponse,
+            testing_generator=UnitTestGenerator
             # TODO: ADICIONAR UM STATUS_CODE_HANDLER DEFAULT POSSIBILITANDO AO USUARIO RETORNAR O STATUS CODE QUE ELE ACHAR MELHOR A DEPENDER DO TIPO DE ERRO
     ):
         if default_headers is None:
@@ -57,6 +68,8 @@ class App:
         if not issubclass(error_format, dict):
             raise TypeError('The error format class must be a subclass of dict.')
         self.error_format=error_format
+        self.testing_generator = testing_generator(self)
+        self.__tests_generated = False
 
     def add_route(self, path: str, resource: Union[object, Resource]):
         if isinstance(resource, Resource):
