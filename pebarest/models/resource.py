@@ -16,17 +16,16 @@ class Resource:
         self.__method_body_type = {}
 
         for method in http_methods_list:
-            handler = getattr(self, method, None)
-            if handler:
-                self.__map_methods[method] = handler
-                annotations = get_type_hints(handler)
-                request_type = annotations.get('request')
+            handler = getattr(self, method)
+            self.__map_methods[method] = handler
+            annotations = get_type_hints(handler)
+            request_type = annotations.get('request')
 
-                if request_type:
-                    args = get_args(request_type)
-                    self.__method_body_type[method] = args[0] if args else None
-                else:
-                    self.__method_body_type[method] = None
+            if request_type:
+                args = get_args(request_type)
+                self.__method_body_type[method] = args[0] if args else None
+            else:
+                self.__method_body_type[method] = None
 
         self.headers = default_headers or {}
 
