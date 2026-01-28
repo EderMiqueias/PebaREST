@@ -41,7 +41,7 @@ class App:
             self,
             import_name: str,
             default_headers: dict=None,
-            is_debug: bool=False,
+            is_debug: bool=True,
             routes_manager=RoutesManager,
             error_format=DefaultErrorResponse
             # TODO: ADICIONAR UM STATUS_CODE_HANDLER DEFAULT POSSIBILITANDO AO USUARIO RETORNAR O STATUS CODE QUE ELE ACHAR MELHOR A DEPENDER DO TIPO DE ERRO
