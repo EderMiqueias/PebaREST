@@ -51,6 +51,10 @@ class Resource:
     def used_methods(self):
         return self.__map_methods
 
+    @property
+    def method_body_type(self):
+        return self.__method_body_type
+
     def get(self, request: Request, *args, **kwargs) -> Response:
         raise MethodNotAllowedError(HttpMethods.get)
 
