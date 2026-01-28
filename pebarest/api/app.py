@@ -90,6 +90,9 @@ class App:
     def logger(self) -> logging.Logger:
         return create_logger(self.import_name, self.is_debug)
 
+    def test_client(self):
+        return TestClient(self)
+
     def __call__(self, environ: dict, start_response=None):
         if not self.__tests_generated:
             self.generate_tests()
