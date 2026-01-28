@@ -79,12 +79,20 @@ class App:
         else:
             resource = Resource.from_anonymous_object(resource, self.headers)
             self.routes_manager.add_route(path, resource)
+    
+    def generate_tests(self, test_cases: Dict[str, Dict[str, any]] = None, output_file=None):
+        if self.is_debug:
+            if self.testing_generator:
+                self.testing_generator.generate(test_cases, output_file)
+                self.__tests_generated = True
 
     @CachedProperty
     def logger(self) -> logging.Logger:
         return create_logger(self.import_name, self.is_debug)
 
     def __call__(self, environ: dict, start_response=None):
+        if not self.__tests_generated:
+            self.generate_tests()
         try:
             resource = self.routes_manager.get_route_resource(environ['PATH_INFO'])
             response = resource(environ)
