@@ -48,7 +48,11 @@ class Resource:
 
     @property
     def used_methods(self) -> Dict[str, Callable]:
-        return self.__map_methods
+        used_methods = {}
+        for method, handler in self.__map_methods.items():
+            if id(getattr(self.__class__, method)) != id(getattr(Resource, method)):
+                used_methods[method] = handler
+        return used_methods
 
     @property
     def method_body_type(self) -> Dict[str, Optional[type]]:
