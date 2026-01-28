@@ -51,7 +51,7 @@ class App:
         self.import_name = import_name
         self.is_debug = is_debug
 
-        self._routes_manager: RoutesManager = routes_manager()
+        self.routes_manager: RoutesManager = routes_manager()
         self.headers = default_headers
 
         if not issubclass(error_format, dict):
@@ -62,10 +62,10 @@ class App:
         if isinstance(resource, Resource):
             if not resource.headers:
                 resource.headers = self.headers
-            self._routes_manager.add_route(path, resource)
+            self.routes_manager.add_route(path, resource)
         else:
             resource = Resource.from_anonymous_object(resource, self.headers)
-            self._routes_manager.add_route(path, resource)
+            self.routes_manager.add_route(path, resource)
 
     @CachedProperty
     def logger(self) -> logging.Logger:
@@ -73,7 +73,7 @@ class App:
 
     def __call__(self, environ: dict, start_response=None):
         try:
-            resource = self._routes_manager.get_route_resource(environ['PATH_INFO'])
+            resource = self.routes_manager.get_route_resource(environ['PATH_INFO'])
             response = resource(environ)
         except MethodNotAllowedError as e:
             response = Response(405, self.headers, self.error_format(e.title, method=e.method))
