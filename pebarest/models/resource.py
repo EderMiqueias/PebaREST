@@ -7,18 +7,18 @@ from pebarest.models.http import HttpMethods, http_methods_list
 
 
 class Resource:
-    _map_methods: Dict[str, Callable]
+    __map_methods: Dict[str, Callable]
     _request_body_type: Dict[str, Optional[type]]
     headers: Dict[str, str]
 
     def __init__(self, default_headers: Optional[Dict[str, str]] = None):
-        self._map_methods = {}
+        self.__map_methods = {}
         self._request_body_type = {}
 
         for method in http_methods_list:
             handler = getattr(self, method, None)
             if handler:
-                self._map_methods[method] = handler
+                self.__map_methods[method] = handler
                 annotations = get_type_hints(handler)
                 request_type = annotations.get('request')
 
@@ -34,7 +34,7 @@ class Resource:
         body_response, status_code = None, 200
         method = environ['REQUEST_METHOD']
         request = Request(environ, self._request_body_type[method])
-        call_return = self._map_methods[method](request, *args, **kwargs)
+        call_return = self.__map_methods[method](request, *args, **kwargs)
 
         if isinstance(call_return, Response):
             return call_return
@@ -46,6 +46,10 @@ class Resource:
                 if len(call_return) > 1:
                     status_code = call_return[1]
         return Response(status_code, self.headers, body_response)
+
+    @property
+    def map_methods(self):
+        return self.__map_methods
 
     def get(self, request: Request, *args, **kwargs) -> Response:
         raise MethodNotAllowedError(HttpMethods.get)
