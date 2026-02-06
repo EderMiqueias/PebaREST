@@ -38,7 +38,7 @@ class TestClient:
             else:
                 body_bytes = body
 
-        environ = {
+        fake_environ = {
             'REQUEST_METHOD': method.upper(),
             'PATH_INFO': path,
             'SERVER_NAME': 'localhost',
@@ -56,7 +56,7 @@ class TestClient:
 
         for k, v in headers.items():
             key = 'HTTP_' + k.upper().replace('-', '_')
-            environ[key] = v
+            fake_environ[key] = v
 
         captured_status = []
         captured_headers = []
@@ -66,7 +66,7 @@ class TestClient:
             captured_headers.extend(response_headers)
             return lambda x: None
 
-        response_iter = self.app(environ, start_response)
+        response_iter = self.app(fake_environ, start_response)
         response_body = b"".join(response_iter)
 
         return TestResponse(captured_status[0], captured_headers, response_body)
