@@ -11,7 +11,7 @@ class Item(BaseModel):
 
 # Class for simple resource
 class GreetingResource(Resource):
-    def get(self, request: Request[Item], *args, **kwargs):
+    def post(self, request: Request[Item], *args, **kwargs):
         print(request.body)
         print(request.params)
         return {"message": "Hello my little peba!"}
