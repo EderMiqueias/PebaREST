@@ -16,7 +16,7 @@ class BaseModel(JsonClass):
     __attrs: tuple = ()
 
     def __init__(self, **kwargs):
-        self.__attrs = self.__get_attrs(self)
+        self.__attrs = self.__get_attrs()
         for attr_name in self.__attrs:
             try:
                 setattr(self, attr_name, self.check_attr_type(attr_name, kwargs[attr_name]))
@@ -60,11 +60,10 @@ class BaseModel(JsonClass):
                 return True
         return False
 
-    @staticmethod
-    def __get_attrs(cls) -> tuple:
-        attrs = list(cls.__annotations__.keys())
+    def __get_attrs(self) -> list:
+        attrs = list(self.__annotations__.keys())
         attrs.remove('_BaseModel__attrs')
-        return tuple(attrs)
+        return attrs
 
     def check_attr_type(self, attr_name: str, value):
         type_hint = self.__annotations__[attr_name]
