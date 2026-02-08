@@ -67,13 +67,15 @@ class BaseModel(JsonClass):
 
     def check_attr_type(self, attr_name: str, value):
         type_hint = self.__annotations__[attr_name]
-        if issubclass(type_hint, BaseModel):
+        if isinstance(type_hint, type) and issubclass(type_hint, BaseModel):
+            if isinstance(value, dict):
+                return type_hint(**value)
             if isinstance(value, type_hint):
                 return value
-            return type_hint(**value)
 
         if not self.is_instance_of(value, type_hint):
-            raise AttrTypeError(attr_name, self.__annotations__[attr_name])
+            raise AttrTypeError(attr_name, type_hint)
+
         return value
 
     def is_instance_of(self, value, type_hint) -> bool:
