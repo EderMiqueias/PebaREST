@@ -25,6 +25,14 @@ class ErrorResponse(dict):
     def __init__(self):
         super().__init__()
 
+    @classmethod
+    def attr_missing_error(cls, e: AttrMissingError, **kwargs):
+        raise NotImplementedError
+
+    @classmethod
+    def attr_type_error(cls, e: AttrTypeError, **kwargs):
+        raise NotImplementedError
+
 
 class DefaultErrorResponse(ErrorResponse):
     def __init__(self, error_message: str, **kwargs):
