@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import Union, List, Dict, get_origin, get_args, Optional
+from typing import Any, Union, List, Dict, Set, get_origin, get_args
+import collections.abc
 
 from pebarest.exceptions import AttrTypeError, AttrListTypeError, AttrMissingError
 from pebarest.utils.json import JsonClass
@@ -82,24 +83,42 @@ class BaseModel(JsonClass):
         """
             Checks whether the value belongs to the given type, including support for typing generics.
         """
-        origin = get_origin(type_hint)
          # TODO: entender o __new__ e como reutilizar uma instancia de classe para reduzir o tempo de processamento e mover as validações para um dict
+        if type_hint is Any:
+            return True
+
+        if isinstance(type_hint, type) and issubclass(type_hint, BaseModel):
+            return isinstance(value, (type_hint, dict))
+
+        origin = get_origin(type_hint)
+        args = get_args(type_hint)
 
         if origin is None:
-            return isinstance(value, type_hint)
-
-        args = get_args(type_hint)
+            if isinstance(type_hint, type):
+                return isinstance(value, type_hint)
+            return True
 
         if origin is Union:
             return any(self.is_instance_of(value, arg) for arg in args)
 
-        if origin in (list, List):
-            return isinstance(value, list) and all(map(lambda item: self.is_instance_of(item, args[0]), value))
+        if origin in (list, List, collections.abc.Sequence, collections.abc.Iterable):
+            if not isinstance(value, (list, tuple)):
+                return False
+            return not args or all(self.is_instance_of(item, args[0]) for item in value)
 
-        if origin in (dict, Dict):
-            return (isinstance(value, dict) and
-                    all(map(lambda kv: self.is_instance_of(kv[0], args[0]) and
-                                       self.is_instance_of(kv[1], args[1]), value.items())))
+        if origin in (dict, Dict, collections.abc.Mapping):
+            if not isinstance(value, dict):
+                return False
+            return not args or all(
+                self.is_instance_of(k, args[0]) and self.is_instance_of(v, args[1])
+                for k, v in value.items()
+            )
+
+        if origin in (set, Set, collections.abc.Set):
+            if not isinstance(value, set):
+                return False
+            return not args or all(self.is_instance_of(item, args[0]) for item in value)
+
         return isinstance(value, origin)
 
 
