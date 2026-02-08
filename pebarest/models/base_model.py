@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Union, List, Dict, Set, get_origin, get_args
+from typing import Any, Union, List, Dict, Set, get_origin, get_args, Optional
 import collections.abc
 
 from pebarest.exceptions import AttrTypeError, AttrListTypeError, AttrMissingError
@@ -120,6 +120,77 @@ class BaseModel(JsonClass):
 
         return isinstance(value, origin)
 
+    @classmethod
+    def get_openapi_schema(cls) -> Dict[str, Any]:
+        """
+        Generates the OpenAPI 3.1.0 schema for the class based on its type annotations.
+        Implements automatic conversion of Python types to JSON Schema.
+        """
+        properties = {}
+        required = []
+
+        for attr_name, type_hint in cls.__annotations__.items():
+            if attr_name.startswith(f'_{cls.__name__}__') or attr_name == '_BaseModel__attrs':
+                continue
+
+            properties[attr_name] = cls._type_to_schema(type_hint)
+
+            if not cls.__check_attr_is_optional(cls, attr_name):
+                required.append(attr_name)
+
+        schema = {
+            "type": "object",
+            "properties": properties
+        }
+
+        if required:
+            schema["required"] = required
+
+        return schema
+
+    @classmethod
+    def _type_to_schema(cls, type_hint: Any) -> Dict[str, Any]:
+        """
+        Maps Python types and generics from the typing library to JSON Schema (OAS 3.1.0).
+        """
+        if isinstance(type_hint, type) and issubclass(type_hint, BaseModel):
+            return type_hint.get_openapi_schema()
+
+        origin = get_origin(type_hint)
+        args = get_args(type_hint)
+
+        mapping = {
+            str: {"type": "string"},
+            int: {"type": "integer"},
+            float: {"type": "number"},
+            bool: {"type": "boolean"},
+            datetime: {"type": "string", "format": "date-time"},
+            Any: {},
+            NoneType: {"type": "null"}
+        }
+
+        if origin is None:
+            return mapping.get(type_hint, {"type": "string"})
+
+        if origin is Union:
+            sub_schemas = [cls._type_to_schema(arg) for arg in args]
+            return {"anyOf": sub_schemas}
+
+        if origin in (list, List, collections.abc.Sequence):
+            item_type = args[0] if args else Any
+            return {
+                "type": "array",
+                "items": cls._type_to_schema(item_type)
+            }
+
+        if origin in (dict, Dict, collections.abc.Mapping):
+            value_type = args[1] if len(args) > 1 else Any
+            return {
+                "type": "object",
+                "additionalProperties": cls._type_to_schema(value_type)
+            }
+
+        return {"type": "object"}
 
     def to_dict(self) -> dict:
         json_object = {}
