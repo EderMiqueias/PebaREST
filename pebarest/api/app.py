@@ -152,7 +152,7 @@ class App:
             path = environ.get('PATH_INFO', '/')
 
             if self.generate_docs and path == '/docs':
-                openapi_data = self._generate_openapi_json()
+                openapi_data = self._generate_openapi_json
                 response = Response(200, self.headers, openapi_data)
                 if start_response:
                     start_response(response.get_status(), list(response.headers.items()))
