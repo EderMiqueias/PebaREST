@@ -149,7 +149,16 @@ class App:
         if not self.__tests_generated:
             self.generate_tests()
         try:
-            resource = self.routes_manager.get_route_resource(environ['PATH_INFO'])
+            path = environ.get('PATH_INFO', '/')
+
+            if self.generate_docs and path == '/docs':
+                openapi_data = self._generate_openapi_json()
+                response = Response(200, self.headers, openapi_data)
+                if start_response:
+                    start_response(response.get_status(), list(response.headers.items()))
+                return response.get_body_bytes()
+
+            resource = self.routes_manager.get_route_resource(path)
             response = resource(environ)
         except MethodNotAllowedError as e:
             response = Response(405, self.headers, self.error_format(e.title, method=e.method))
