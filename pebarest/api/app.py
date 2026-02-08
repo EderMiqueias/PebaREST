@@ -52,6 +52,7 @@ class App:
             import_name: str,
             default_headers: dict=None,
             is_debug: bool=True,
+            generate_docs: bool=False,
             routes_manager=RoutesManager,
             error_format=DefaultErrorResponse,
             testing_generator=UnitTestGenerator
@@ -61,6 +62,7 @@ class App:
             default_headers = {}
         self.import_name = import_name
         self.is_debug = is_debug
+        self.generate_docs = generate_docs
 
         self.routes_manager: RoutesManager = routes_manager()
         self.headers = default_headers
