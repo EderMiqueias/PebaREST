@@ -1,7 +1,8 @@
 import logging
 
-from typing import Union, Dict, Type
+from typing import Union, Dict, Type, Any
 
+from pebarest import BaseModel
 from pebarest.models import Resource, Response, DefaultErrorResponse
 from pebarest.exceptions import RouteAlreadyExistsError, MethodNotAllowedError, NotFoundError, AttrMissingError, \
     AttrTypeError
@@ -87,6 +88,55 @@ class App:
             if self.testing_generator:
                 self.testing_generator.generate(test_cases, output_file)
                 self.__tests_generated = True
+
+    @CachedProperty
+    def _generate_openapi_json(self) -> Dict[str, Any]:
+        """
+        Scan the registered routes and build the OpenAPI 3.1.0 document.
+        """
+        paths = {}
+        schemas = {}
+
+        for path, resource in self.routes_manager.routes.items():
+            path_item = {}
+            for method_name, method_func in resource.used_methods.items():
+                # TODO: ADICIONAR SUPORTE PARA RESPONSE MODELS E PARA DESCRIÇÃO DAS OPERAÇÕES
+                operation = {
+                    "responses": {
+                        "200": {"description": "Sucesso"}
+                    }
+                }
+
+                body_type = resource.method_body_type.get(method_name)
+                if body_type and issubclass(body_type, BaseModel):
+                    model_name = body_type.__name__
+                    if model_name not in schemas:
+                        schemas[model_name] = body_type.get_openapi_schema()
+
+                    operation["requestBody"] = {
+                        "content": {
+                            "application/json": {
+                                "schema": {"$ref": f"#/components/schemas/{model_name}"}
+                            }
+                        }
+                    }
+
+                path_item[method_name] = operation
+
+            paths[path] = path_item
+
+        return {
+            "openapi": "3.1.0",
+            "info": {
+                "title": f"API {self.import_name}",
+                "version": "1.0.0",
+                "description": "Documentação gerada automaticamente pelo PebaREST"
+            },
+            "paths": paths,
+            "components": {
+                "schemas": schemas
+            }
+        }
 
     @CachedProperty
     def logger(self) -> logging.Logger:
