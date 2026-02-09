@@ -80,6 +80,8 @@ class App:
 
     def add_route(self, path: str, resource: Union[object, Resource]):
         if isinstance(resource, Resource):
+            if not resource.auth_handler:
+                resource.auth_handler = self.auth_handler
             if not resource.headers:
                 resource.headers = self.headers
             self.routes_manager.add_route(path, resource)
