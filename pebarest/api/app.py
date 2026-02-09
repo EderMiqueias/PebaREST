@@ -3,6 +3,7 @@ import logging
 from typing import Union, Dict, Type, Any
 
 from pebarest import BaseModel
+from pebarest.auth import BaseAuthenticator
 from pebarest.models import Resource, Response, DefaultErrorResponse
 from pebarest.exceptions import RouteAlreadyExistsError, MethodNotAllowedError, NotFoundError, AttrMissingError, \
     AttrTypeError
@@ -47,6 +48,7 @@ class App:
     default_headers: dict
     is_debug: bool
     testing_generator: TestGenerator
+    auth_handler: BaseAuthenticator
     
     def __init__(
             self,
@@ -54,6 +56,7 @@ class App:
             default_headers: dict=None,
             is_debug: bool=True,
             generate_docs: bool=False,
+            auth_handler=None,
             routes_manager=RoutesManager,
             error_format=DefaultErrorResponse,
             testing_generator=UnitTestGenerator
@@ -65,6 +68,7 @@ class App:
         self.is_debug = is_debug
         self.generate_docs = generate_docs
 
+        self.auth_handler = auth_handler
         self.routes_manager: RoutesManager = routes_manager()
         self.headers = default_headers
 
