@@ -87,7 +87,7 @@ class App:
             self.routes_manager.add_route(path, resource)
         else:
             resource = Resource.from_anonymous_object(resource, self.headers)
-            self.routes_manager.add_route(path, resource)
+            self.add_route(path, resource)
     
     def generate_tests(self, test_cases: Dict[str, Dict[str, any]] = None, output_file=None):
         if self.is_debug:
