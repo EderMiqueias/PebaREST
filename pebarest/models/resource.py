@@ -10,6 +10,7 @@ class Resource:
     __map_methods: Dict[str, Callable]
     __method_body_type: Dict[str, Optional[type]]
     headers: Dict[str, str]
+    auth_handler = None
 
     def __init__(self, default_headers: Optional[Dict[str, str]] = None):
         self.__map_methods = {}
