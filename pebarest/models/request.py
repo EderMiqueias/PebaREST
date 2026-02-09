@@ -1,6 +1,6 @@
 import json
 
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Optional
 from urllib.parse import parse_qs
 
 
@@ -21,13 +21,15 @@ class Request(Generic[T]):
     _headers: dict
     params: dict
     body: T
+    client_info: Optional[dict] = None
 
-    def __init__(self, environ: dict, body_type: type=None):
+    def __init__(self, environ: dict, body_type: type=None, client_info: dict = None):
         self.headers, self._headers = self.parse_headers(environ)
 
         parsed_body = self._parse_body(environ)
         self.body = body_type(**parsed_body) if body_type else parsed_body
         self.params = self._parse_params(environ)
+        self.client_info = client_info
 
     @staticmethod
     def parse_headers(environ):
