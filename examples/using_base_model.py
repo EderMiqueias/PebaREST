@@ -17,7 +17,7 @@ class GreetingResource(Resource):
         return {"message": "Hello my little peba!"}
 
 
-app = App(__name__, default_headers={'Content-Type': 'application/json'})
+app = App(__name__, default_headers={'Content-Type': 'application/json'}, generate_docs=True)
 
 # Add a new route path
 app.add_route('/greeting', GreetingResource())
