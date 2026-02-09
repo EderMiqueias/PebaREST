@@ -34,6 +34,10 @@ class Resource:
         body_response, status_code = None, 200
         method = environ['REQUEST_METHOD'].lower()
         request = Request(environ, self.__method_body_type[method])
+
+        if self.auth_handler:
+            request.client_info = self.auth_handler.authenticate(request)
+
         call_return = self.__map_methods[method](request, *args, **kwargs)
 
         if isinstance(call_return, Response):
