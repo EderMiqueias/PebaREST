@@ -1,6 +1,7 @@
 import logging
+import re
 
-from typing import Union, Dict, Type, Any
+from typing import Dict, List, Optional, Tuple, Type, Union, Any
 
 from pebarest import BaseModel
 from pebarest.auth import BaseAuthenticator
@@ -15,31 +16,64 @@ from pebarest.utils.caching import CachedProperty
 from pebarest.utils.logging import create_logger
 
 
+_PARAM_RE = re.compile(r'\{(\w+)\}')
+
+
 class RoutesManager:
-    __routes: dict = {}
+    __routes: Dict[str, Resource]
+    __dynamic_routes: List[Tuple[re.Pattern, Resource]]
 
     def __init__(self, routes=None):
-        if routes is None:
-            routes = {}
-        self.__routes = routes
+        self.__routes = routes if routes is not None else {}
+        self.__dynamic_routes = []
 
     def __iter__(self):
         yield from self.__routes.keys()
+        for pattern, _ in self.__dynamic_routes:
+            yield pattern.pattern
 
     @property
     def routes(self) -> Dict[str, Resource]:
         return self.__routes
 
+    @staticmethod
+    def _compile_path(path: str) -> Optional[re.Pattern]:
+        """Convert a path template like /users/{id} into a compiled regex."""
+        if not _PARAM_RE.search(path):
+            return None
+        regex = _PARAM_RE.sub(r'(?P<\1>[^/]+)', path)
+        return re.compile(f'^{regex}$')
+
     def add_route(self, path: str, resource: Resource):
-        if path in self.__routes:
-            raise RouteAlreadyExistsError(path)
-        self.__routes[path] = resource
+        pattern = self._compile_path(path)
+        if pattern is not None:
+            for existing_pattern, _ in self.__dynamic_routes:
+                if existing_pattern.pattern == pattern.pattern:
+                    raise RouteAlreadyExistsError(path)
+            self.__dynamic_routes.append((pattern, resource))
+        else:
+            if path in self.__routes:
+                raise RouteAlreadyExistsError(path)
+            self.__routes[path] = resource
 
     def get_route_resource(self, path: str) -> Resource:
+        """Exact-match lookup. Kept for backwards compatibility."""
         try:
             return self.__routes[path]
         except KeyError:
             raise NotFoundError()
+
+    def match_route(self, path: str) -> Tuple[Resource, Dict[str, str]]:
+        """Return (resource, path_params) for the given request path."""
+        # 1. Fast exact-match on static routes
+        if path in self.__routes:
+            return self.__routes[path], {}
+        # 2. Linear scan over dynamic routes in registration order
+        for pattern, resource in self.__dynamic_routes:
+            match = pattern.fullmatch(path)
+            if match:
+                return resource, match.groupdict()
+        raise NotFoundError()
 
 
 class App:
@@ -164,8 +198,8 @@ class App:
                     start_response(response.get_status(), list(response.headers.items()))
                 return response.get_body_bytes()
 
-            resource = self.routes_manager.get_route_resource(path)
-            response = resource(environ)
+            resource, path_params = self.routes_manager.match_route(path)
+            response = resource(environ, **path_params)
         except MethodNotAllowedError as e:
             response = Response(405, self.headers, self.error_format(e.title, method=e.method))
         except NotFoundError as e:
