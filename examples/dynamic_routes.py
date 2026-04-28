@@ -31,13 +31,15 @@ class UsersResource(Resource):
 # --- /users/{user_id}  (dynamic) --------------------------------------------
 
 class UserDetailResource(Resource):
-    def get(self, request: Request, user_id: str, **kwargs):
+    def get(self, request: Request,):
+        user_id = request.path_params.get("user_id")
         user = USERS.get(user_id)
         if user is None:
             return {"error": f"User '{user_id}' not found."}, 404
         return user
 
-    def delete(self, request: Request, user_id: str, **kwargs):
+    def delete(self, request: Request):
+        user_id = request.path_params.get("user_id")
         user = USERS.pop(user_id, None)
         if user is None:
             return {"error": f"User '{user_id}' not found."}, 404
@@ -47,7 +49,9 @@ class UserDetailResource(Resource):
 # --- /posts/{post_id}/comments/{comment_id}  (two dynamic segments) ---------
 
 class CommentDetailResource(Resource):
-    def get(self, request: Request, post_id: str, comment_id: str, **kwargs):
+    def get(self, request: Request):
+        post_id = request.path_params.get("post_id")
+        comment_id = request.path_params.get("comment_id")
         post = POSTS.get(post_id)
         if post is None:
             return {"error": f"Post '{post_id}' not found."}, 404
