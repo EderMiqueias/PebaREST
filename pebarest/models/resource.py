@@ -30,15 +30,16 @@ class Resource:
 
         self.headers = default_headers or {}
 
-    def __call__(self, environ, *args, **kwargs) -> Response:
+    def __call__(self, environ: dict, path_params: Dict[str, str] = None) -> Response:
         body_response, status_code = None, 200
         method = environ['REQUEST_METHOD'].lower()
         request = Request(environ, self.__method_body_type[method])
+        request.path_params = path_params or {}
 
         if self.auth_handler:
             request.client_info = self.auth_handler.authenticate(request)
 
-        call_return = self.__map_methods[method](request, *args, **kwargs)
+        call_return = self.__map_methods[method](request)
 
         if isinstance(call_return, Response):
             return call_return
@@ -63,25 +64,25 @@ class Resource:
     def method_body_type(self) -> Dict[str, Optional[type]]:
         return self.__method_body_type
 
-    def get(self, request: Request, *args, **kwargs) -> Response:
+    def get(self, request: Request) -> Response:
         raise MethodNotAllowedError(HttpMethods.get)
 
-    def post(self, request: Request, *args, **kwargs) -> Response:
+    def post(self, request: Request) -> Response:
         raise MethodNotAllowedError(HttpMethods.post)
 
-    def put(self, request: Request, *args, **kwargs) -> Response:
+    def put(self, request: Request) -> Response:
         raise MethodNotAllowedError(HttpMethods.put)
 
-    def patch(self, request: Request, *args, **kwargs) -> Response:
+    def patch(self, request: Request) -> Response:
         raise MethodNotAllowedError(HttpMethods.patch)
 
-    def delete(self, request: Request, *args, **kwargs) -> Response:
+    def delete(self, request: Request) -> Response:
         raise MethodNotAllowedError(HttpMethods.delete)
 
-    def head(self, request: Request, *args, **kwargs) -> Response:
+    def head(self, request: Request) -> Response:
         raise MethodNotAllowedError(HttpMethods.head)
 
-    def options(self, request: Request, *args, **kwargs) -> Response:
+    def options(self, request: Request) -> Response:
         raise MethodNotAllowedError(HttpMethods.options)
 
     @classmethod
