@@ -7,6 +7,11 @@ name = "pebarest"
 version = "1.0.1"
 description = "PebaRest Framework, fast to code, take the control of your application."
 dependencies = []
+readme = "README.md"
+authors = [
+  { name = "Eder Miqueias", email = "eder.mcrodrigues@gmail.com" }
+]
+urls = { Repository = "https://github.com/EderMiqueias/PebaREST" }
 
 [tool.setuptools.packages.find]
 where = ["."]
