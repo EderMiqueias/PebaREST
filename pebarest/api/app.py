@@ -139,7 +139,7 @@ class App:
 
         for path, resource in self.routes_manager.routes.items():
             path_item = {}
-            for method_name, method_func in resource.used_methods.items():
+            for method_name in resource.used_methods.keys():
                 # TODO: ADICIONAR SUPORTE PARA RESPONSE MODELS E PARA DESCRIÇÃO DAS OPERAÇÕES
                 operation = {
                     "responses": {
