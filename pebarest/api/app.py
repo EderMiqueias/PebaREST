@@ -14,9 +14,7 @@ from pebarest.testing.base_test_generator import TestGenerator
 from pebarest.testing.test_client import TestClient
 from pebarest.utils.caching import CachedProperty
 from pebarest.utils.logging import create_logger
-
-
-_PARAM_RE = re.compile(r'\{(\w+)\}')
+from pebarest.utils.routing import compile_path
 
 
 class RoutesManager:
@@ -36,16 +34,8 @@ class RoutesManager:
     def routes(self) -> Dict[str, Resource]:
         return self.__routes
 
-    @staticmethod
-    def _compile_path(path: str) -> Optional[re.Pattern]:
-        """Convert a path template like /users/{id} into a compiled regex."""
-        if not _PARAM_RE.search(path):
-            return None
-        regex = _PARAM_RE.sub(r'(?P<\1>[^/]+)', path)
-        return re.compile(f'^{regex}$')
-
     def add_route(self, path: str, resource: Resource):
-        pattern = self._compile_path(path)
+        pattern = compile_path(path)
         if pattern is not None:
             for existing_pattern, _ in self.__dynamic_routes:
                 if existing_pattern.pattern == pattern.pattern:
@@ -199,7 +189,7 @@ class App:
                 return response.get_body_bytes()
 
             resource, path_params = self.routes_manager.match_route(path)
-            response = resource(environ, **path_params)
+            response = resource(environ, path_params)
         except MethodNotAllowedError as e:
             response = Response(405, self.headers, self.error_format(e.title, method=e.method))
         except NotFoundError as e:
